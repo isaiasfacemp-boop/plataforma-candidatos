@@ -1,0 +1,8 @@
+name = "plataforma-candidatos-api"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "plataforma_candidatos"
+database_id = "a4ac24c7-0ba8-491d-918f-ef13a85cc587"

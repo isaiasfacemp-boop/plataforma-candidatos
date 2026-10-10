@@ -1,0 +1,3237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plataforma de Candidatos</title>
+<!-- instalar como app (celular e PC) -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b1b3a">
+<link rel="icon" href="icons/favicon-32.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RH Psicologia">
+<style>
+  :root{
+    --bg:#f6f7f9;
+    --surface:#ffffff;
+    --border:#e2e5ea;
+    --text:#1f2430;
+    --text-muted:#6b7280;
+    --primary:#2f5d8a;
+    --primary-dark:#234866;
+    --primary-light:#eaf1f8;
+    --accent:#3f8f6f;
+    --accent-light:#eaf6f1;
+    --danger:#b3462c;
+    --danger-light:#faece8;
+    --radius:10px;
+    --shadow:0 1px 2px rgba(20,25,35,.06), 0 1px 8px rgba(20,25,35,.04);
+    --grad-start:#2f5d8a;
+    --grad-end:#6a4fb0;
+    --brand-gradient:linear-gradient(135deg, var(--grad-start) 0%, var(--grad-end) 100%);
+  }
+  *{box-sizing:border-box;}
+  html{text-transform:uppercase;}
+  body,input,select,textarea,button,option,::placeholder{
+    text-transform:uppercase;
+  }
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:
+      radial-gradient(circle at 8% -6%, rgba(47,93,138,.10) 0%, transparent 40%),
+      radial-gradient(circle at 96% 6%, rgba(106,79,176,.10) 0%, transparent 38%),
+      radial-gradient(circle at 50% 100%, rgba(63,143,111,.06) 0%, transparent 45%),
+      var(--bg);
+    background-attachment:fixed;
+    color:var(--text);
+    line-height:1.5;
+  }
+  .app{max-width:960px;margin:0 auto;padding:24px 20px 64px;}
+  header.top{
+    display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:22px 26px;
+    box-shadow:var(--shadow);
+    position:relative;
+    overflow:hidden;
+  }
+  header.top h1{font-size:21px;margin:0;font-weight:700;color:var(--text);position:relative;}
+  header.top .sub{color:var(--text-muted);font-size:13px;margin-top:2px;position:relative;}
+  .header-left{display:flex;align-items:center;gap:14px;position:relative;min-width:0;}
+  .header-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px;position:relative;margin-left:auto;}
+  .logo-upload{
+    flex-shrink:0;width:150px;height:84px;border-radius:14px;
+    background:var(--bg);border:1.5px dashed var(--border);
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+  }
+  .logo-upload.has-logo{background:transparent;border-color:transparent;}
+  .logo-upload img{width:100%;height:100%;object-fit:cover;}
+  .logo-upload #logoPlaceholder{font-size:34px;line-height:1;}
+  .logo-upload-editable{
+    flex-shrink:0;width:64px;height:64px;border-radius:14px;cursor:pointer;
+    background:var(--bg);border:1.5px dashed var(--border);
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+    transition:background .15s ease, border-color .15s ease;
+  }
+  .logo-upload-editable:hover{background:var(--primary-light);border-color:var(--primary);}
+  .logo-upload-editable img{width:100%;height:100%;object-fit:cover;}
+  .logo-upload-editable #settingsLogoPlaceholder{font-size:26px;line-height:1;color:var(--text-muted);}
+  .header-actions{display:flex;gap:8px;}
+  .header-user-row{align-items:center;flex-wrap:wrap;justify-content:flex-end;}
+  .btn-header{
+    display:inline-flex;align-items:center;justify-content:center;gap:5px;cursor:pointer;
+    background:var(--surface);color:var(--text);border:1px solid var(--border);
+    border-radius:7px;padding:6px 11px;font-size:12px;font-weight:600;font-family:inherit;
+    transition:background .15s ease, transform .15s ease;
+    min-width:96px;box-sizing:border-box;
+    appearance:none;-webkit-appearance:none;-moz-appearance:none;margin:0;line-height:normal;
+  }
+  .btn-header:hover{background:var(--bg);transform:translateY(-1px);}
+  .btn-header:active{transform:translateY(0) scale(.97);}
+  .badge{display:inline-flex;align-items:center;gap:6px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600;position:relative;backdrop-filter:blur(2px);}
+  nav.tabs{display:flex;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:5px;margin-bottom:22px;box-shadow:var(--shadow);position:relative;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin;}
+  .tab-indicator{
+    position:absolute;top:5px;bottom:5px;left:5px;
+    background:var(--brand-gradient);
+    border-radius:7px;
+    box-shadow:0 4px 14px -4px rgba(47,45,138,.45);
+    transition:left .28s cubic-bezier(.4,0,.2,1), width .28s cubic-bezier(.4,0,.2,1), opacity .2s ease;
+    z-index:0;
+  }
+  nav.tabs button{
+    position:relative;z-index:1;
+    flex:0 0 auto;padding:9px 13px;border:none;background:transparent;border-radius:7px;
+    font-size:12.5px;font-weight:600;color:var(--text-muted);cursor:pointer;
+    transition:color .2s ease, transform .15s ease;
+    white-space:nowrap;
+  }
+  nav.tabs button.active{color:#fff;}
+  nav.tabs button:not(.active):hover{color:var(--text);transform:translateY(-1px);}
+  nav.tabs button:active{transform:translateY(0) scale(.97);}
+  .tab-panel{animation:panelIn .32s cubic-bezier(.4,0,.2,1);}
+  /* anexo e botão Enviar: só aparecem no link enviado ao candidato */
+  body:not(.modo-publico) .so-publico{display:none !important;}
+  body:not(.modo-publico) #shareBox{margin-top:0;border-top:0;padding-top:0;}
+  /* ---------- aba Início: módulos do sistema ---------- */
+  .back-bar{
+    display:flex;align-items:center;gap:12px;margin:0 0 18px;position:sticky;top:10px;z-index:30;
+    background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:6px 18px 6px 6px;
+    box-shadow:0 6px 20px -8px rgba(20,25,35,.22);width:max-content;max-width:100%;
+  }
+  .btn-voltar{
+    display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:999px;cursor:pointer;
+    background:var(--primary-light);border:1px solid transparent;
+    font:inherit;font-size:13px;font-weight:700;color:var(--primary);transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .btn-voltar:hover{transform:translateY(-1px);box-shadow:0 6px 16px -6px rgba(20,25,35,.2);}
+  .btn-voltar:active{transform:scale(.97);}
+  .back-title{font-size:15px;font-weight:800;color:var(--text);white-space:nowrap;}
+  .home-head{margin:4px 0 18px;}
+  .home-head h2{margin:0;font-size:24px;font-weight:800;color:var(--text);text-transform:none;letter-spacing:-.01em;}
+  .home-head p{margin:4px 0 0;color:var(--text-muted);font-size:13.5px;text-transform:none;}
+  .modules-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;}
+  @media (max-width:900px){.modules-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+  .module-card{
+    position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;
+    background:var(--surface);border:1px solid var(--border);border-left:7px solid var(--mc,#2f5d8a);
+    border-radius:16px;padding:24px 22px 22px 24px;min-height:150px;cursor:pointer;
+    box-shadow:0 1px 2px rgba(20,25,35,.05), 0 4px 14px rgba(20,25,35,.05);
+    transition:transform .18s ease, box-shadow .18s ease;font-family:inherit;text-transform:none;
+  }
+  .module-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px -8px rgba(20,25,35,.18);}
+  .module-card:active{transform:translateY(0) scale(.98);}
+  .module-card:focus-visible{outline:3px solid var(--primary-light);outline-offset:2px;}
+  .module-card .mc-ico{font-size:36px;line-height:1;margin-bottom:10px;}
+  .module-card .mc-title{font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.01em;}
+  .module-card .mc-desc{font-size:13px;color:var(--text-muted);line-height:1.45;}
+  .module-card .mc-count{
+    position:absolute;top:18px;right:18px;min-width:26px;padding:3px 10px;border-radius:999px;
+    font-size:12px;font-weight:800;background:var(--mc-bg,#eef2f7);color:var(--mc,#2f5d8a);text-align:center;
+  }
+  @media (max-width:560px){
+    .modules-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+    .module-card{padding:16px 12px 14px 14px;min-height:0;border-left-width:5px;border-radius:14px;gap:4px;}
+    .module-card .mc-ico{font-size:28px;margin-bottom:6px;}
+    .module-card .mc-title{font-size:14.5px;}
+    .module-card .mc-desc{font-size:11.5px;line-height:1.35;}
+    .module-card .mc-count{position:static;order:5;margin-top:6px;font-size:10.5px;padding:2px 8px;}
+    .home-head h2{font-size:20px;}
+  }
+  @keyframes panelIn{
+    from{opacity:0;transform:translateY(8px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);margin-bottom:18px;transition:box-shadow .2s ease, transform .2s ease;}
+  .card h2{font-size:16px;margin:0 0 4px;}
+  .card p.hint{color:var(--text-muted);font-size:13px;margin:0 0 18px;}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .grid .full{grid-column:1/-1;}
+  @media (max-width:640px){.grid{grid-template-columns:1fr;}}
+  label{display:block;font-size:13px;font-weight:600;margin-bottom:5px;color:var(--text);}
+  label .opt{font-weight:400;color:var(--text-muted);}
+  input[type=text],input[type=email],input[type=tel],input[type=number],input[type=password],input[type=date],select,textarea{
+    width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:7px;font-size:14px;
+    background:#fff;color:var(--text);font-family:inherit;
+  }
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--primary);outline-offset:1px;border-color:var(--primary);}
+  textarea{resize:vertical;min-height:64px;}
+  fieldset{border:1px solid var(--border);border-radius:8px;padding:14px;margin:0 0 14px;}
+  fieldset legend{font-size:13px;font-weight:600;padding:0 6px;color:var(--primary-dark);}
+  .exp-block{border:1px dashed var(--border);border-radius:8px;padding:12px;margin-bottom:10px;}
+  .exp-block .grid{grid-template-columns:1.4fr 1fr .8fr;}
+  @media (max-width:640px){.exp-block .grid{grid-template-columns:1fr;}}
+  .row-inline{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;}
+  .radio-group{display:flex;gap:16px;padding-top:6px;}
+  .radio-group label{display:flex;align-items:center;gap:6px;font-weight:500;font-size:14px;margin:0;}
+  .radio-group input{width:auto;}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:8px;border:1px solid transparent;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:transform .15s ease, box-shadow .2s ease, background .2s ease;}
+  .btn-primary{background:var(--brand-gradient);color:#fff;box-shadow:0 3px 10px -3px rgba(47,45,138,.4);}
+  .btn-primary:hover{box-shadow:0 6px 16px -4px rgba(47,45,138,.55);transform:translateY(-1px);}
+  .btn-primary:active{transform:translateY(0) scale(.97);}
+  .btn-ghost{background:transparent;color:var(--primary);border-color:var(--primary);}
+  .btn-ghost:hover{background:var(--primary-light);transform:translateY(-1px);}
+  .btn-ghost:active{transform:translateY(0) scale(.97);}
+  .btn-danger{background:transparent;color:var(--danger);border-color:var(--danger);}
+  .btn-danger:hover{background:var(--danger-light);}
+  .btn-sm{padding:6px 10px;font-size:12px;}
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.25s;z-index:50;}
+  /* ---------- janela de confirmação do próprio sistema ---------- */
+  .confirm-overlay{
+    position:fixed;inset:0;background:rgba(15,20,30,.55);display:flex;align-items:center;justify-content:center;
+    padding:20px;z-index:200;opacity:0;pointer-events:none;transition:opacity .18s ease;
+  }
+  .confirm-overlay.show{opacity:1;pointer-events:auto;}
+  .confirm-box{
+    background:var(--surface);border-radius:16px;padding:26px 26px 20px;max-width:400px;width:100%;
+    box-shadow:0 20px 50px -12px rgba(15,20,30,.35);text-transform:none;
+    transform:translateY(8px) scale(.98);transition:transform .18s ease;
+  }
+  .confirm-overlay.show .confirm-box{transform:translateY(0) scale(1);}
+  .confirm-box h3{margin:0 0 10px;font-size:17px;font-weight:800;color:var(--text);}
+  .confirm-box p{margin:0;font-size:14px;color:var(--text-muted);line-height:1.5;white-space:pre-line;}
+  .confirm-box .confirm-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px;}
+  .toast.show{opacity:1;transform:translate(-50%,-6px);}
+  .file-link{font-size:12.5px;}
+  .filepreview-overlay{position:fixed;inset:0;background:rgba(20,25,35,.55);display:flex;align-items:center;justify-content:center;z-index:80;padding:24px;}
+  .filepreview-box{background:var(--surface);border-radius:var(--radius);box-shadow:0 20px 50px -10px rgba(0,0,0,.35);width:min(560px,92vw);height:min(600px,82vh);display:flex;flex-direction:column;overflow:hidden;}
+  .filepreview-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);}
+  .filepreview-head span{font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .filepreview-actions{display:flex;gap:6px;flex-shrink:0;}
+  .filepreview-actions a,.filepreview-actions button{font-size:12px;padding:5px 9px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);cursor:pointer;text-decoration:none;font-family:inherit;}
+  .filepreview-actions a:hover,.filepreview-actions button:hover{background:var(--primary-light);border-color:var(--primary);}
+  .filepreview-body{flex:1;overflow:auto;background:#525659;display:flex;align-items:center;justify-content:center;}
+  .filepreview-body iframe{width:100%;height:100%;border:none;background:#fff;}
+  .filepreview-body img{max-width:100%;max-height:100%;object-fit:contain;}
+  .banner{display:flex;gap:10px;align-items:flex-start;background:var(--primary-light);border:1px solid #cfe0ee;color:var(--primary-dark);border-radius:8px;padding:12px 14px;font-size:13px;margin-bottom:18px;}
+  .banner strong{display:block;margin-bottom:2px;}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px;}
+  .stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);transition:transform .2s ease, box-shadow .2s ease;}
+  .stat:hover{transform:translateY(-2px);box-shadow:0 8px 18px -6px rgba(20,25,35,.15);}
+  .stat .n{font-size:22px;font-weight:700;background:var(--brand-gradient);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+  .stat .l{font-size:12px;color:var(--text-muted);}
+  .searchbar{display:flex;gap:10px;margin-bottom:16px;}
+  .searchbar input{flex:1;}
+  .busca-filtros{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+  .chip-filtro{border:1.5px solid var(--border);background:var(--surface);color:var(--text-muted);padding:7px 15px;border-radius:999px;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s ease;}
+  .chip-filtro:hover{border-color:var(--primary);color:var(--text);}
+  .chip-filtro.active{border-color:transparent;color:#fff;}
+  .chip-filtro.active[data-filtro="TODOS"]{background:#64748b;}
+  .chip-filtro.active[data-filtro="APTO"]{background:#16a34a;}
+  .chip-filtro.active[data-filtro="CONTRATADO"]{background:#6a4fb0;}
+  .chip-filtro.active[data-filtro="NÃO APTO"]{background:var(--danger);}
+  .candidate-list{display:flex;flex-direction:column;gap:10px;}
+  .cand-row{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;cursor:pointer;transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;}
+  .cand-row:hover{border-color:var(--primary);transform:translateY(-2px);box-shadow:0 10px 20px -8px rgba(20,25,35,.18);}
+  .cand-row .head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+  .cand-row .name{font-weight:600;font-size:15px;}
+  .cand-row .meta{color:var(--text-muted);font-size:12.5px;margin-top:3px;}
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:700;}
+  .pill.apto{background:var(--accent-light);color:var(--accent);}
+  .pill.naoapto{background:var(--danger-light);color:var(--danger);}
+  .pill.pendente{background:#f1f2f4;color:var(--text-muted);}
+  .pill.contratado{background:#f1ecfa;color:#6a4fb0;}
+  .detail{border-top:1px solid var(--border);margin-top:12px;padding-top:12px;display:none;}
+  .detail.open{display:block;}
+  .detail dl{display:grid;grid-template-columns:150px 1fr;gap:6px 10px;font-size:13.5px;margin:0 0 12px;}
+  .detail dt{color:var(--text-muted);}
+  .lock{text-align:center;padding:48px 20px;}
+  .lock input{max-width:220px;margin:14px auto;text-align:center;letter-spacing:3px;}
+  .empty{text-align:center;color:var(--text-muted);padding:36px 10px;font-size:14px;}
+  .toolbar{display:flex;justify-content:flex-end;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+  .share-box{display:flex;gap:8px;align-items:center;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12.5px;color:var(--text-muted);margin-top:10px;}
+  .share-box code{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text);}
+  .convites-box{margin-top:22px;border-top:1px solid var(--border);padding-top:18px;}
+  .convites-box h3{margin:0 0 4px;font-size:15px;}
+  .convites-box .hint{color:var(--text-muted);font-size:12.5px;margin:0 0 12px;}
+  .convite-novo{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+  .convite-novo input{flex:1;min-width:180px;}
+  .convite-item{border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px;background:var(--bg);}
+  .convite-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;}
+  .convite-top strong{font-weight:600;}
+  .convite-meta{font-size:12px;color:var(--text-muted);margin-top:2px;}
+  .convite-link{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px;}
+  .convite-link code{flex:1;min-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;text-transform:none;color:var(--text);}
+  .public-msg{text-align:center;padding:36px 16px;}
+  .public-msg .ico{font-size:40px;margin-bottom:8px;}
+  .public-msg h2{margin:0 0 6px;font-size:19px;}
+  .public-msg p{color:var(--text-muted);margin:0;font-size:14px;}
+  .exp-list{font-size:13px;}
+  .exp-list li{margin-bottom:3px;}
+  .progress-wrap{margin-bottom:20px;}
+  .progress-head{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;color:var(--text-muted);margin-bottom:6px;}
+  .progress-head #progressPct{color:var(--primary);font-variant-numeric:tabular-nums;}
+  .progress-track{background:var(--primary-light);border-radius:999px;height:8px;overflow:hidden;}
+  .progress-fill{height:100%;display:block;border-radius:999px;background:var(--series-1,#2a78d6);width:0%;transition:width .35s cubic-bezier(.4,0,.2,1);}
+  .invite-block{margin-top:14px;border-top:1px solid var(--border);padding-top:12px;}
+  .invite-block label{margin-bottom:6px;}
+  .invite-block textarea{font-size:13px;}
+
+  /* ---- dashboard / charts (validated palette: series-1 blue, status good/critical/muted) ---- */
+  .viz-root{
+    --series-1:#2a78d6;
+    --seq-700:#0d366b; --seq-600:#184f95; --seq-550:#1c5cab; --seq-500:#256abf;
+    --seq-450:#2a78d6; --seq-400:#3987e5; --seq-350:#5598e7;
+    --status-good:#0ca30c;
+    --status-critical:#d03b3b;
+    --status-muted:#898781;
+    --ink-primary:#0b0b0b;
+    --ink-secondary:#52514e;
+    --ink-muted:#898781;
+    --gridline:#e1e0d9;
+  }
+  .dash-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+  .chart-card h3{font-size:14px;margin:0 0 2px;color:var(--ink-primary,var(--text));}
+  .chart-card .chart-hint{font-size:12px;color:var(--ink-secondary,var(--text-muted));margin:0 0 14px;}
+  .bar-rows{display:flex;flex-direction:column;gap:10px;}
+  .bar-row{display:grid;grid-template-columns:150px 1fr 42px;align-items:center;gap:10px;}
+  @media (max-width:640px){.bar-row{grid-template-columns:96px 1fr 36px;}}
+  .bar-row .b-label{font-size:12.5px;color:var(--ink-secondary,var(--text-muted));overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .bar-row .b-track{display:block;background:var(--gridline);border-radius:4px;height:14px;position:relative;overflow:hidden;}
+  .bar-row .b-fill{display:block;height:100%;border-radius:4px;background:var(--series-1);min-width:4px;transition:width .3s ease;}
+  .bar-row .b-fill.good{background:var(--status-good);}
+  .bar-row .b-fill.critical{background:var(--status-critical);}
+  .bar-row .b-fill.muted{background:var(--status-muted);}
+  .bar-row .b-fill.contratado{background:#6a4fb0;}
+  .bar-row .b-value{font-size:12.5px;font-weight:700;color:var(--ink-primary,var(--text));text-align:right;font-variant-numeric:tabular-nums;}
+  .bar-row .b-icon{display:inline-block;width:14px;text-align:center;margin-right:4px;font-weight:700;}
+  .donut-wrap{display:flex;align-items:center;gap:28px;flex-wrap:wrap;}
+  .donut-svg{flex:0 0 auto;}
+  .donut-svg path{stroke:var(--surface,#fff);stroke-width:1.5;transition:opacity .15s ease;}
+  .donut-svg path:hover{opacity:.85;}
+  .donut-center-value{font-size:26px;font-weight:800;fill:var(--ink-primary,var(--text));font-family:inherit;}
+  .donut-center-label{font-size:11px;fill:var(--ink-muted,var(--text-muted));font-family:inherit;}
+  .donut-legend{display:flex;flex-direction:column;gap:9px;flex:1;min-width:180px;}
+  .donut-legend-row{display:grid;grid-template-columns:12px 1fr auto auto;align-items:center;gap:9px;font-size:12.5px;}
+  .donut-legend-swatch{width:12px;height:12px;border-radius:3px;flex:0 0 auto;}
+  .donut-legend-label{color:var(--ink-secondary,var(--text-muted));overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .donut-legend-value{font-weight:700;color:var(--ink-primary,var(--text));font-variant-numeric:tabular-nums;}
+  .donut-legend-pct{color:var(--ink-muted,var(--text-muted));font-variant-numeric:tabular-nums;min-width:38px;text-align:right;}
+  @media (max-width:560px){.donut-wrap{flex-direction:column;align-items:stretch;}}
+  .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media (max-width:760px){.dash-grid{grid-template-columns:1fr;}}
+  .viz-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:4px;}
+  .viz-table th,.viz-table td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--gridline);}
+  .viz-table th{color:var(--ink-secondary,var(--text-muted));font-weight:600;}
+  .viz-table td:last-child,.viz-table th:last-child{text-align:right;font-variant-numeric:tabular-nums;}
+  .toggle-table-btn{margin-top:12px;}
+
+  /* ---- relatório / dashboard / print ---- */
+  @media print{
+    header.top, .banner, nav.tabs, .toolbar, #relatorioFiltros, #backBar, #modoTesteBar, #toast, .dash-toolbar{ display:none !important; }
+    body{ background:#fff; }
+    .card{ box-shadow:none; border:none; }
+    /* sem isso, o navegador some com as cores dos gráficos/barras ao gerar o PDF */
+    *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; color-adjust:exact !important; }
+    .stat{ break-inside:avoid; page-break-inside:avoid; }
+    .stat .n{ background:none !important; -webkit-text-fill-color:initial !important; color:var(--primary,#2a56c6) !important; }
+    .chart-card, .dash-grid > *{ break-inside:avoid; page-break-inside:avoid; }
+    .bar-row{ break-inside:avoid; page-break-inside:avoid; }
+    .donut-wrap{ break-inside:avoid; page-break-inside:avoid; }
+  }
+
+  /* ---- login ---- */
+  .login-screen{
+    --login-bg-1:#0d1526; --login-bg-2:#0d1526;
+    --login-card:#131b30; --login-input:#131c33;
+    --login-border:rgba(148,163,214,.22); --login-border-focus:#3b82f6;
+    --login-text:#f2f4f8; --login-muted:#93a0bd;
+    --login-accent:#2f6fed; --login-accent-hover:#255fd6;
+    min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
+    background:linear-gradient(180deg, var(--login-bg-1) 0%, var(--login-bg-2) 100%);
+  }
+  .login-card{
+    width:100%;max-width:420px;background:var(--login-card);border-radius:18px;
+    border:1px solid var(--login-border);
+    box-shadow:0 25px 60px -20px rgba(0,0,0,.55);padding:36px 34px;text-align:center;
+  }
+  .login-logo{
+    width:100%;min-height:150px;margin:0 auto 22px;
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+    border:1px solid var(--login-border);border-radius:16px;padding:6px;
+    box-sizing:border-box;
+  }
+  .login-logo img{width:100%;height:100%;object-fit:contain;border-radius:10px;}
+  .login-logo #loginLogoPlaceholder{font-size:52px;line-height:1;color:var(--login-muted);}
+  .login-card h1{font-size:18px;margin:0 0 4px;color:var(--login-text);}
+  .login-card .sub{color:var(--login-muted);font-size:13px;margin-bottom:22px;}
+  .login-card label{text-align:left;display:block;color:var(--login-muted);font-weight:600;font-size:13px;margin-bottom:6px;}
+  .login-card input{
+    width:100%;box-sizing:border-box;padding:9px 11px;font-size:14px;font-family:inherit;
+    margin-bottom:16px;background:var(--login-input);color:var(--login-text);
+    border:1px solid var(--login-border);border-radius:9px;
+  }
+  .login-card input::placeholder{color:var(--login-muted);}
+  .login-card input:focus{border-color:var(--login-border-focus);box-shadow:0 0 0 3px rgba(59,130,246,.18);}
+  .password-wrap{position:relative;margin-bottom:16px;}
+  .password-wrap input{width:100%;margin-bottom:0;padding-right:40px;}
+  .password-wrap .toggle-pass{
+    position:absolute;right:8px;top:50%;transform:translateY(-50%);margin-top:-7px;
+    background:none;border:none;cursor:pointer;font-size:15px;color:var(--login-muted);padding:4px;
+  }
+  .login-card .btn-primary{
+    width:100%;justify-content:center;margin-top:6px;background:var(--login-accent);
+    border:none;padding:12px;font-size:14.5px;border-radius:9px;
+  }
+  .login-card .btn-primary:hover{background:var(--login-accent-hover);}
+  .login-error{color:#f87171;font-size:12.5px;margin:12px 0 0;}
+  .login-hint{color:var(--login-muted);font-size:12px;margin:16px 0 0;padding-top:14px;border-top:1px solid var(--login-border);}
+  .login-hint strong{color:var(--login-text);}
+
+  /* ---- usuários ---- */
+  .role-badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;}
+  .role-badge.admin{background:var(--accent-light);color:var(--accent);}
+  .role-badge.membro{background:var(--primary-light);color:var(--primary-dark);}
+  .user-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid var(--border);border-radius:9px;margin-bottom:8px;background:var(--surface);}
+  .user-row .u-info{display:flex;flex-direction:column;}
+  .user-row .u-name{font-weight:600;font-size:14px;}
+  .user-row .u-meta{font-size:12px;color:var(--text-muted);}
+  .user-row .u-actions{display:flex;align-items:center;gap:10px;}
+  .new-user-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;align-items:start;}
+  .new-user-grid select{width:100%;box-sizing:border-box;}
+  @media (max-width:800px){.new-user-grid{grid-template-columns:1fr 1fr;}}
+
+  /* ---- mensagens (equipe) ---- */
+  .msg-list{display:flex;flex-direction:column;gap:10px;}
+  .msg-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow);}
+  .msg-item.unread{border-color:var(--primary);background:var(--primary-light);}
+  .msg-item .msg-head{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12.5px;color:var(--text-muted);margin-bottom:6px;flex-wrap:wrap;}
+  .msg-item .msg-head strong{color:var(--text);}
+  .msg-item .msg-body{font-size:14px;white-space:pre-wrap;}
+  .msg-to-pill{display:inline-block;background:var(--primary-light);color:var(--primary-dark);border-radius:999px;padding:1px 9px;font-size:11px;font-weight:700;}
+  .tab-unread-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--danger);margin-left:3px;vertical-align:top;}
+</style>
+</head>
+<body>
+
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo" id="loginLogoBox">
+      <img id="loginLogoImg" alt="Logomarca" style="display:none;">
+      <span id="loginLogoPlaceholder">&#127970;</span>
+    </div>
+    <label>Usuário</label>
+    <input type="text" id="loginUser" placeholder="Usuário" autocomplete="username" autofocus>
+    <label>Senha</label>
+    <div class="password-wrap">
+      <input type="password" id="loginPass" placeholder="Senha" autocomplete="current-password">
+      <button type="button" class="toggle-pass" id="toggleLoginPass" title="Mostrar/ocultar senha">&#128065;</button>
+    </div>
+    <button type="button" class="btn btn-primary" id="loginBtn">Entrar</button>
+    <p class="login-error" id="loginError" style="display:none;">Usuário ou senha inválidos.</p>
+    <button type="button" class="btn btn-ghost" id="installAppBtnLogin" style="display:none;margin-top:10px;width:100%;">&#11015; Instalar aplicativo</button>
+  </div>
+</div>
+
+<div class="login-screen" id="forcarSenhaScreen" style="display:none;">
+  <div class="login-card">
+    <div class="login-logo" id="fsLogoBox">
+      <span>&#128272;</span>
+    </div>
+    <h1 style="text-align:center;">Troque sua senha</h1>
+    <p class="sub" style="text-align:center;">Por segurança, defina uma nova senha antes de continuar.</p>
+    <label>Senha atual</label>
+    <div class="password-wrap">
+      <input type="password" id="fs_senhaAtual" autocomplete="current-password">
+      <button type="button" class="toggle-pass" id="fsToggleAtual" title="Mostrar/ocultar senha">&#128065;</button>
+    </div>
+    <label>Nova senha</label>
+    <div class="password-wrap">
+      <input type="password" id="fs_senhaNova" autocomplete="new-password">
+      <button type="button" class="toggle-pass" id="fsToggleNova" title="Mostrar/ocultar senha">&#128065;</button>
+    </div>
+    <label>Confirmar nova senha</label>
+    <input type="password" id="fs_senhaConfirmar" autocomplete="new-password">
+    <button type="button" class="btn btn-primary" id="fs_salvar" style="margin-top:14px;">Salvar e continuar</button>
+    <p class="login-error" id="fsErro" style="display:none;"></p>
+  </div>
+</div>
+
+<div class="app" id="appRoot" style="display:none;">
+
+  <header class="top">
+    <div class="header-left">
+      <div class="logo-upload" id="logoDisplay">
+        <img id="logoImg" alt="Logomarca" style="display:none;">
+        <span id="logoPlaceholder">&#127970;</span>
+      </div>
+      <div>
+        <h1 id="appTitle">Plataforma de Candidatos</h1>
+        <div class="sub" id="headerSub" style="display:none;">
+          <div id="headerSubName"></div>
+          <div id="headerSubAddress" style="opacity:.85;"></div>
+          <div id="headerSubContact" style="opacity:.85;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="header-actions header-user-row">
+        <span class="badge" id="currentUserBadge" style="display:none;"></span>
+        <button type="button" class="btn-header" id="logoutBtn" title="Sair">&#9099; Sair</button>
+      </div>
+      <div class="header-actions header-user-row" id="headerSecondRow" style="margin-top:6px;">
+        <button type="button" class="btn-header" id="installAppBtn" title="Instalar aplicativo" style="display:none;">&#11015; Instalar app</button>
+        <button type="button" class="btn-header" id="headerUsuariosBtn" title="Usuários" style="display:none;">&#128100; Usuários</button>
+        <button type="button" class="btn-header" id="headerMensagensBtn" title="Mensagens da equipe" style="display:none;">&#128172; Mensagens<span id="mensagensUnreadDot" class="tab-unread-dot" style="display:none;"></span></button>
+        <button type="button" class="btn-header" id="headerExportBtn" title="Exportar dados (.json)" style="display:none;">&#11015; Exportar</button>
+        <label class="btn-header" id="headerImportLabel" title="Importar dados (.json)" style="display:none;">
+          &#11014; Importar
+          <input type="file" id="headerImportInput" accept="application/json" style="display:none;">
+        </label>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs" style="display:none;">
+    <div class="tab-indicator" id="tabIndicator"></div>
+    <button data-tab="inicio" class="active">&#127968; Início</button>
+    <button data-tab="cadastro">&#128203; Cadastro</button>
+    <button data-tab="avaliacao">&#128274; Avaliação</button>
+    <button data-tab="apto">&#9989; Apto</button>
+    <button data-tab="contratado">&#127881; Contratados</button>
+    <button data-tab="naoapto">&#10060; Não apto</button>
+    <button data-tab="dashboard">&#128202; Dashboard</button>
+    <button data-tab="relatorio">&#128196; Relatório</button>
+    <button data-tab="usuarios" id="tabUsuariosBtn">&#128100; Usuários</button>
+  </nav>
+
+  <div class="back-bar" id="backBar" style="display:none;">
+    <button type="button" class="btn-voltar" id="backHomeBtn">&#8592; Início</button>
+    <span class="back-title" id="backTitle"></span>
+  </div>
+
+  <!-- ===================== INÍCIO: MÓDULOS DO SISTEMA ===================== -->
+  <section id="tab-inicio" class="tab-panel" style="display:none;">
+    <div class="home-head">
+      <h2>Módulos do Sistema</h2>
+      <p id="homeSaudacao">Escolha o que você quer fazer.</p>
+    </div>
+    <div class="modules-grid">
+      <button type="button" class="module-card" data-go="cadastro" style="--mc:#3b82f6;--mc-bg:#e8f0fe;">
+        <span class="mc-ico">&#128279;</span>
+        <span class="mc-title">Link</span>
+        <span class="mc-desc">Gerar links de cadastro para os candidatos preencherem</span>
+      </button>
+      <button type="button" class="module-card" data-go="avaliacao" style="--mc:#eab308;--mc-bg:#fdf6d8;">
+        <span class="mc-count" id="mcCountAval" style="display:none;"></span>
+        <span class="mc-ico">&#128274;</span>
+        <span class="mc-title">Avaliação</span>
+        <span class="mc-desc">Avaliar candidatos, perfil DISC, parecer e contratação</span>
+      </button>
+      <button type="button" class="module-card" data-go="apto" style="--mc:#22c55e;--mc-bg:#e3f7ea;">
+        <span class="mc-count" id="mcCountApto" style="display:none;"></span>
+        <span class="mc-ico">&#9989;</span>
+        <span class="mc-title">Apto</span>
+        <span class="mc-desc">Candidatos avaliados como aptos</span>
+      </button>
+      <button type="button" class="module-card" data-go="naoapto" style="--mc:#ef4444;--mc-bg:#fde8e8;">
+        <span class="mc-count" id="mcCountNaoApto" style="display:none;"></span>
+        <span class="mc-ico">&#10060;</span>
+        <span class="mc-title">Não apto</span>
+        <span class="mc-desc">Candidatos avaliados como não aptos</span>
+      </button>
+      <button type="button" class="module-card" data-go="contratado" style="--mc:#ec4899;--mc-bg:#fce7f3;">
+        <span class="mc-count" id="mcCountContratado" style="display:none;"></span>
+        <span class="mc-ico">&#127881;</span>
+        <span class="mc-title">Contratados</span>
+        <span class="mc-desc">Candidatos contratados</span>
+      </button>
+      <button type="button" class="module-card" data-go="dashboard" style="--mc:#6366f1;--mc-bg:#ecebfd;">
+        <span class="mc-ico">&#128202;</span>
+        <span class="mc-title">Dashboard</span>
+        <span class="mc-desc">Gráficos e números gerais dos candidatos</span>
+      </button>
+      <button type="button" class="module-card" data-go="relatorio" style="--mc:#a855f7;--mc-bg:#f3e8fd;">
+        <span class="mc-ico">&#128196;</span>
+        <span class="mc-title">Relatório</span>
+        <span class="mc-desc">Consultas com filtros por área, cidade e situação</span>
+      </button>
+      <button type="button" class="module-card" data-go="exportar" style="--mc:#64748b;--mc-bg:#eef1f5;">
+        <span class="mc-ico">&#128228;</span>
+        <span class="mc-title">Exportar Dados</span>
+        <span class="mc-desc">Baixar uma cópia de segurança de todos os candidatos</span>
+      </button>
+      <button type="button" class="module-card" data-go="importar" style="--mc:#0ea5e9;--mc-bg:#e0f2fe;">
+        <span class="mc-ico">&#128229;</span>
+        <span class="mc-title">Importar Dados</span>
+        <span class="mc-desc">Carregar candidatos de um arquivo exportado (.json)</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ===================== TAB 1: CADASTRO ===================== -->
+  <section id="tab-cadastro" class="tab-panel">
+    <div class="card">
+      <h2 class="so-publico">Cadastro de Candidatos</h2>
+      <p class="hint so-publico">Preencha seus dados abaixo. Os campos com * são obrigatórios.</p>
+
+      <div class="progress-wrap so-publico" aria-hidden="false">
+        <div class="progress-head">
+          <span>Progresso do preenchimento</span>
+          <span id="progressPct">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <form id="formCadastro" class="so-publico">
+        <div class="grid">
+          <div class="full">
+            <label>Nome completo *</label>
+            <input type="text" id="c_nome" required>
+          </div>
+          <div class="full">
+            <label>Nome Social <span class="opt">(não obrigatório)</span></label>
+            <input type="text" id="c_nomeSocial">
+          </div>
+          <div>
+            <label>Telefone *</label>
+            <input type="tel" id="c_telefone" placeholder="(00) 00000-0000" required>
+          </div>
+          <div>
+            <label>E-mail *</label>
+            <input type="email" id="c_email" required>
+          </div>
+          <div>
+            <label>Idade *</label>
+            <input type="number" id="c_idade" min="14" max="99" required>
+          </div>
+          <div>
+            <label>Está buscando vaga de: *</label>
+            <select id="c_tipoVaga" required>
+              <option value="">Selecione</option>
+              <option value="Efetivo">Efetivo</option>
+              <option value="Estágio">Estágio</option>
+              <option value="Ambos">Ambos</option>
+            </select>
+          </div>
+          <div>
+            <label>Cidade *</label>
+            <input type="text" id="c_cidade" placeholder="Ex: Santo Antônio de Jesus" required>
+          </div>
+        </div>
+
+        <fieldset style="margin-top:14px;">
+          <legend>CNH</legend>
+          <div class="radio-group">
+            <label><input type="radio" name="c_cnh" value="Sim"> Sim</label>
+            <label><input type="radio" name="c_cnh" value="Não" checked> Não</label>
+          </div>
+          <div id="c_cnhCatWrap" style="display:none;margin-top:10px;max-width:260px;">
+            <label>Qual categoria?</label>
+            <input type="text" id="c_cnhCategoria" placeholder="Ex: A, B, AB...">
+          </div>
+        </fieldset>
+
+        <div class="grid">
+          <div>
+            <label>Escolaridade *</label>
+            <select id="c_escolaridade" required>
+              <option value="">Selecione</option>
+              <option>Ensino Fundamental incompleto</option>
+              <option>Ensino Fundamental completo</option>
+              <option>Ensino Médio incompleto</option>
+              <option>Ensino Médio completo</option>
+              <option>Ensino Superior incompleto</option>
+              <option>Ensino Superior completo</option>
+              <option>Pós-graduação</option>
+            </select>
+          </div>
+          <div>
+            <label>Áreas de interesse *</label>
+            <input type="text" id="c_areas" placeholder="Ex: Vendas, Produção, Administrativo" required>
+          </div>
+          <div class="full">
+            <label>Cursos <span class="opt">(separe por vírgula)</span></label>
+            <input type="text" id="c_cursos">
+          </div>
+        </div>
+
+        <fieldset style="margin-top:14px;">
+          <legend>Experiências profissionais (até 3 mais recentes)</legend>
+          <div id="expBlocks"></div>
+        </fieldset>
+
+        <div class="full so-publico" style="margin-bottom:16px;">
+          <label>Anexar currículo em PDF</label>
+          <input type="file" id="c_curriculo" accept="application/pdf">
+        </div>
+
+        <button type="submit" class="btn btn-primary so-publico">Enviar cadastro</button>
+      </form>
+
+      <div class="convites-box" id="shareBox" style="display:none;">
+        <h3>&#128279; Links de cadastro para candidatos</h3>
+        <p class="hint">Cada link só pode ser preenchido uma vez. Depois que o candidato envia, o link deixa de funcionar.</p>
+        <div class="convite-novo">
+          <input type="text" id="conviteDesc" placeholder="Para quem é o link? (opcional)">
+          <button type="button" class="btn btn-primary btn-sm" id="conviteGerarBtn">+ Gerar link</button>
+        </div>
+        <div id="convitesList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TAB 2: AVALIAÇÃO (SIGILOSO) ===================== -->
+  <section id="tab-avaliacao" class="tab-panel" style="display:none;">
+    <div class="card" id="lockCard" style="display:none;">
+      <div class="lock">
+        <div style="font-size:32px;">&#128274;</div>
+        <h2 style="margin-top:10px;">Área sigilosa</h2>
+        <p class="hint">Informe o código de acesso da equipe de RH para ver e preencher as avaliações.</p>
+        <input type="text" id="pinInput" placeholder="Código de acesso" maxlength="8">
+        <div><button class="btn btn-primary" id="unlockBtn">Entrar</button></div>
+        <p class="hint" style="margin-top:14px;">Código de demonstração: <strong>1234</strong></p>
+      </div>
+    </div>
+
+    <div id="avaliacaoContent">
+      <div class="card">
+        <h2>Preenchimento durante e pós entrevista</h2>
+        <p class="hint">Selecione um candidato para registrar a avaliação. Assim que for marcado como Apto, Não apto ou Contratado, ele some daqui e vai para a aba correspondente.</p>
+        <div class="searchbar">
+          <input type="text" id="avalSearchInput" placeholder="Digite um nome ou área...">
+        </div>
+        <div id="avalList" class="candidate-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TAB 3: BUSCA ===================== -->
+  <section id="tab-apto" class="tab-panel" style="display:none;">
+    <div class="card">
+      <h2>&#9989; Candidatos aptos</h2>
+      <p class="hint">Pesquise pelo nome ou por área de interesse (ex: vendedor, auxiliar de produção...)</p>
+      <div class="searchbar">
+        <input type="text" id="aptoSearchInput" placeholder="Digite um nome ou área...">
+      </div>
+      <div id="aptoResults" class="candidate-list"></div>
+    </div>
+  </section>
+
+  <section id="tab-contratado" class="tab-panel" style="display:none;">
+    <div class="card">
+      <h2>&#127881; Candidatos contratados</h2>
+      <p class="hint">Pesquise pelo nome ou por área de interesse (ex: vendedor, auxiliar de produção...)</p>
+      <div class="searchbar">
+        <input type="text" id="contratadoSearchInput" placeholder="Digite um nome ou área...">
+      </div>
+      <div id="contratadoResults" class="candidate-list"></div>
+    </div>
+  </section>
+
+  <section id="tab-naoapto" class="tab-panel" style="display:none;">
+    <div class="card">
+      <h2>&#10060; Candidatos não aptos</h2>
+      <p class="hint">Pesquise pelo nome ou por área de interesse (ex: vendedor, auxiliar de produção...)</p>
+      <div class="searchbar">
+        <input type="text" id="naoaptoSearchInput" placeholder="Digite um nome ou área...">
+      </div>
+      <div id="naoaptoResults" class="candidate-list"></div>
+    </div>
+  </section>
+
+  <!-- ===================== TAB 4: DASHBOARD ===================== -->
+  <section id="tab-dashboard" class="tab-panel viz-root" style="display:none;">
+    <div class="dash-toolbar">
+      <p class="hint" style="margin:0;">Visão geral de todos os candidatos cadastrados.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-sm" id="toggleTableBtn">Ver como tabela</button>
+        <button class="btn btn-primary btn-sm" id="dashGerarPdfBtn">&#128196; Gerar PDF</button>
+      </div>
+    </div>
+
+    <div class="stats" id="statsRow"></div>
+
+    <div id="dashCharts">
+      <div class="dash-grid">
+        <div class="card chart-card">
+          <h3>Candidatos por tipo de vaga</h3>
+          <p class="chart-hint">Efetivo, estágio ou ambos</p>
+          <div class="bar-rows" id="chartTipoVaga"></div>
+        </div>
+        <div class="card chart-card">
+          <h3>Conclusão das avaliações</h3>
+          <p class="chart-hint">Resultado registrado na área sigilosa</p>
+          <div class="bar-rows" id="chartConclusao"></div>
+        </div>
+      </div>
+      <div class="card chart-card">
+        <h3>Candidatos por área de interesse</h3>
+        <p class="chart-hint">Top áreas mais buscadas pelos candidatos cadastrados</p>
+        <div class="donut-wrap" id="chartAreas"></div>
+      </div>
+    </div>
+
+    <div id="dashTable" class="card chart-card" style="display:none;">
+      <h3>Dados em tabela</h3>
+      <p class="chart-hint">Mesmos números dos gráficos acima, em formato de tabela</p>
+      <table class="viz-table" id="tableTipoVaga"></table>
+      <table class="viz-table" id="tableConclusao" style="margin-top:18px;"></table>
+      <table class="viz-table" id="tableAreas" style="margin-top:18px;"></table>
+    </div>
+  </section>
+
+  <!-- ===================== TAB 5: RELATÓRIO ===================== -->
+  <section id="tab-relatorio" class="tab-panel" style="display:none;">
+    <div class="card" id="relatorioFiltros">
+      <h2>Relatório de candidatos</h2>
+      <p class="hint">Filtre por categoria (área de interesse), status da avaliação e período de cadastro. Ao gerar, o relatório já abre pronto para impressão/PDF.</p>
+
+      <div class="grid">
+        <div>
+          <label>Categoria / Área</label>
+          <select id="r_area"><option value="">Todas as áreas</option></select>
+        </div>
+        <div>
+          <label>Cidade</label>
+          <select id="r_cidade"><option value="">Todas as cidades</option></select>
+        </div>
+        <div>
+          <label>Status</label>
+          <select id="r_status">
+            <option value="">Todos os status</option>
+            <option value="APTO">APTO</option>
+            <option value="CONTRATADO">Contratado</option>
+            <option value="NÃO APTO">NÃO APTO</option>
+            <option value="PENDENTE">Pendente</option>
+          </select>
+        </div>
+        <div>
+          <label>Data de</label>
+          <input type="date" id="r_dataDe">
+        </div>
+        <div>
+          <label>Data até</label>
+          <input type="date" id="r_dataAte">
+        </div>
+        <div class="full">
+          <label>Aplicar o período acima em</label>
+          <select id="r_dataTipo">
+            <option value="cadastro">Data de cadastro</option>
+            <option value="avaliacao">Data da entrevista/avaliação</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row-inline" style="margin-top:16px;">
+        <button class="btn btn-primary" id="r_gerar">Gerar relatório</button>
+        <button class="btn btn-ghost" id="r_limpar">Limpar filtros</button>
+      </div>
+    </div>
+
+    <div class="card" id="relatorioResultado">
+      <div class="dash-toolbar">
+        <h2 style="margin:0;">Resultado</h2>
+        <span class="hint" id="r_count" style="margin:0;"></span>
+      </div>
+      <div id="r_results" class="candidate-list"></div>
+    </div>
+  </section>
+
+  <!-- ===================== TAB: MENSAGENS (equipe) ===================== -->
+  <section id="tab-mensagens" class="tab-panel" style="display:none;">
+    <div class="card">
+      <h2>Mensagem para a equipe</h2>
+      <p class="hint">Escreva um recado para toda a equipe ou selecione uma pessoa específica da lista de usuários.</p>
+      <div class="grid">
+        <div class="full">
+          <label>Para</label>
+          <select id="m_para">
+            <option value="">Toda a equipe</option>
+          </select>
+        </div>
+        <div class="full">
+          <label>Mensagem</label>
+          <textarea id="m_texto" rows="3" placeholder="Escreva sua mensagem..."></textarea>
+        </div>
+      </div>
+      <button type="button" class="btn btn-primary" id="m_enviar">Enviar mensagem</button>
+    </div>
+
+    <div class="card">
+      <div class="dash-toolbar">
+        <h2 style="margin:0;">Mensagens</h2>
+        <span class="hint" id="m_count" style="margin:0;"></span>
+      </div>
+      <div id="m_list" class="msg-list"></div>
+    </div>
+  </section>
+
+  <!-- ===================== TAB 6: USUÁRIOS (somente Administrador) ===================== -->
+  <section id="tab-usuarios" class="tab-panel" style="display:none;">
+    <div class="card" id="cardLogoSistema">
+      <h2>Logo do sistema</h2>
+      <p class="hint">Essa é a logomarca do próprio sistema — aparece na tela de login. É diferente da logomarca da empresa que está usando o sistema (essa fica em "Dados da empresa", abaixo, e aparece no cabeçalho).</p>
+      <div class="row-inline" style="align-items:center;">
+        <label class="logo-upload-editable" id="systemLogoUpload" title="Clique para escolher a logo do sistema">
+          <img id="systemLogoImg" alt="Logo do sistema" style="display:none;">
+          <span id="systemLogoPlaceholder">&#128187;</span>
+          <input type="file" id="systemLogoInput" accept="image/*" style="display:none;">
+        </label>
+        <div style="flex:1;min-width:220px;">
+          <label>Título do sistema</label>
+          <input type="text" id="appTitleInput" placeholder="Plataforma de Candidatos" maxlength="60">
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="cardDadosEmpresa">
+      <h2>Dados da empresa</h2>
+      <p class="hint">Nome e logomarca da empresa que está usando o sistema — aparecem no cabeçalho para todos os usuários. Somente administradores podem editar essas informações. Os dados ficam salvos automaticamente neste computador.</p>
+      <div class="row-inline" style="align-items:center;">
+        <label class="logo-upload-editable" id="settingsLogoUpload" title="Clique para escolher a logomarca da empresa">
+          <img id="settingsLogoImg" alt="Logomarca" style="display:none;">
+          <span id="settingsLogoPlaceholder">&#127970;</span>
+          <input type="file" id="settingsLogoInput" accept="image/*" style="display:none;">
+        </label>
+        <div style="flex:1;min-width:220px;">
+          <label>Nome da empresa</label>
+          <input type="text" id="companyNameInput" placeholder="Nome da empresa que vai usar o sistema" maxlength="60">
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top:18px;">
+        <div>
+          <label>CEP</label>
+          <input type="text" id="companyCep" placeholder="00000-000" maxlength="9" inputmode="numeric">
+          <span class="hint" id="cepStatus" style="margin:4px 0 0;display:block;"></span>
+        </div>
+        <div>
+          <label>Telefone</label>
+          <input type="tel" id="companyPhone" placeholder="(00) 00000-0000">
+        </div>
+        <div>
+          <label>Endereço</label>
+          <input type="text" id="companyEndereco" placeholder="Rua, avenida...">
+        </div>
+        <div>
+          <label>Número</label>
+          <input type="text" id="companyNumero" placeholder="Nº">
+        </div>
+        <div class="full">
+          <label>Bairro</label>
+          <input type="text" id="companyBairro" placeholder="Bairro">
+        </div>
+        <div>
+          <label>Cidade</label>
+          <input type="text" id="companyCidade" placeholder="Cidade">
+        </div>
+        <div>
+          <label>Estado</label>
+          <input type="text" id="companyEstado" placeholder="UF" maxlength="2" style="text-transform:uppercase;">
+        </div>
+      </div>
+      <button type="button" class="btn btn-primary" id="companySaveBtn" style="margin-top:16px;">Salvar dados da empresa</button>
+    </div>
+
+    <div class="card">
+      <h2>Novo usuário</h2>
+      <p class="hint">Perfis: <strong>Administrador</strong> · <strong>Membro</strong> — usuário e senha aqui cadastrados passam a poder entrar na tela de login do painel. Todo usuário novo começa com a senha <strong>1234</strong> e é obrigado a trocá-la no primeiro acesso.</p>
+
+      <div class="new-user-grid">
+        <div>
+          <label>Nome</label>
+          <input type="text" id="u_nome" placeholder="Nome completo">
+        </div>
+        <div>
+          <label>Usuário / e-mail</label>
+          <input type="text" id="u_usuario" placeholder="Usuário / e-mail">
+        </div>
+        <div>
+          <label>Perfil</label>
+          <select id="u_perfil">
+            <option value="Administrador">Administrador</option>
+            <option value="Membro" selected>Membro</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-primary" id="u_add" style="margin-top:14px;">+ Adicionar usuário</button>
+    </div>
+
+    <div class="card">
+      <h2>Usuários cadastrados</h2>
+      <p class="hint">Quem tem acesso ao painel e com qual perfil.</p>
+      <div id="usersList"></div>
+    </div>
+  </section>
+
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <h3 id="confirmTitulo">Confirmar</h3>
+    <p id="confirmTexto"></p>
+    <div id="confirmSenhaWrap" style="margin-top:16px;display:none;">
+      <label style="text-transform:none;">Digite sua senha para confirmar</label>
+      <input type="password" id="confirmSenhaInput" autocomplete="current-password">
+      <p id="confirmSenhaErro" style="color:var(--danger);font-size:12.5px;margin-top:6px;display:none;text-transform:none;"></p>
+    </div>
+    <div class="confirm-actions">
+      <button type="button" class="btn btn-ghost btn-sm" id="confirmCancelar">Cancelar</button>
+      <button type="button" class="btn btn-danger btn-sm" id="confirmOk" style="background:var(--danger);color:#fff;">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- state ----------
+  var PIN = "1234";
+  var unlocked = false;
+
+  // ---------- banco de dados na nuvem (Cloudflare Worker + D1) ----------
+  // Cole abaixo o endereço do seu Worker (sem barra no final):
+  var API_URL = 'https://plataforma-candidatos-api.isaiasfacemp.workers.dev';
+
+  var STORAGE_KEY = 'plataformaCandidatosData_v1';     // dados antigos (só para migração)
+  var TOKEN_KEY = 'plataformaCandidatosToken';
+  var isPublicCadastro = window.location.hash.indexOf('#cadastro') === 0;
+  var conviteToken = (window.location.hash.match(/^#cadastro=([A-Za-z0-9_-]+)$/) || [])[1] || '';
+  var authToken = null;
+  try{ authToken = window.sessionStorage.getItem(TOKEN_KEY); }catch(e){}
+  try{ window.localStorage.removeItem(TOKEN_KEY); }catch(e){} // login antigo que ficava salvo no computador
+
+  function api(path, opts){
+    opts = opts || {};
+    var headers = {'Content-Type':'application/json'};
+    if(authToken) headers['Authorization'] = 'Bearer ' + authToken;
+    var body = opts.body ? JSON.stringify(opts.body) : undefined;
+    return fetch(API_URL + path, {
+      method: opts.method || 'GET',
+      headers: headers,
+      body: body,
+      keepalive: !!(opts.keepalive && body && body.length < 60000)
+    }).then(function(r){
+      return r.json().catch(function(){ return {}; }).then(function(j){
+        if(!r.ok){ var err = new Error(j.erro || ('Erro ' + r.status)); err.status = r.status; throw err; }
+        return j;
+      });
+    });
+  }
+
+  // --- arquivos: no banco eles viram uma referência "arquivo:ID" ---
+  var refPorDataUrl = new Map();
+  var dataUrlPorRef = {};
+  var refsEnviadas = {};
+  var refsMantidas = {logo:'', systemLogo:''};
+
+  function refPara(dataUrl, uploads){
+    if(!dataUrl) return '';
+    if(dataUrl.indexOf('arquivo:') === 0) return dataUrl;
+    if(dataUrl.indexOf('data:') !== 0) return dataUrl;
+    var ref = refPorDataUrl.get(dataUrl);
+    if(!ref){
+      ref = 'arquivo:' + cryptoId();
+      refPorDataUrl.set(dataUrl, ref);
+      dataUrlPorRef[ref] = dataUrl;
+    }
+    if(!refsEnviadas[ref] && uploads && !uploads.some(function(u){ return u.ref === ref; })){
+      uploads.push({ref: ref, id: ref.slice(8), dataUrl: dataUrl});
+    }
+    return ref;
+  }
+
+  function baixarArquivo(ref){
+    if(dataUrlPorRef[ref]) return Promise.resolve(dataUrlPorRef[ref]);
+    return api('/api/arquivo/' + encodeURIComponent(ref.slice(8))).then(function(r){
+      dataUrlPorRef[ref] = r.dataUrl;
+      refPorDataUrl.set(r.dataUrl, ref);
+      refsEnviadas[ref] = true;
+      return r.dataUrl;
+    });
+  }
+
+  // --- foto do estado atual, no formato que vai para o banco ---
+  function imgVisivel(img){ return img && img.style.display !== 'none' && img.src && img.src.indexOf('data:') === 0; }
+
+  function montarSnapshot(uploads){
+    var snap = {};
+    function put(tipo, id, obj){ snap[tipo + '|' + id] = {tipo: tipo, id: id, json: JSON.stringify(obj)}; }
+
+    candidates.forEach(function(c){
+      var o = Object.assign({}, c);
+      o.curriculoDataUrl = refPara(c.curriculoDataUrl, uploads);
+      if(c.avaliacao){
+        o.avaliacao = Object.assign({}, c.avaliacao);
+        o.avaliacao.parecerDataUrl = refPara(c.avaliacao.parecerDataUrl, uploads);
+      }
+      put('candidato', c.id, o);
+    });
+    users.forEach(function(u){ put('usuario', u.id, u); });
+    messages.forEach(function(m){ put('mensagem', m.id, m); });
+
+    put('config', 'geral', {
+      appTitle: appTitleInput ? appTitleInput.value : '',
+      company: {
+        nome: companyNameInput ? companyNameInput.value : '',
+        cep: (document.getElementById('companyCep')||{}).value || '',
+        telefone: (document.getElementById('companyPhone')||{}).value || '',
+        endereco: (document.getElementById('companyEndereco')||{}).value || '',
+        numero: (document.getElementById('companyNumero')||{}).value || '',
+        bairro: (document.getElementById('companyBairro')||{}).value || '',
+        cidade: (document.getElementById('companyCidade')||{}).value || '',
+        estado: (document.getElementById('companyEstado')||{}).value || ''
+      },
+      logo: imgVisivel(logoImg) ? refPara(logoImg.src, uploads) : refsMantidas.logo,
+      systemLogo: imgVisivel(systemLogoImg) ? refPara(systemLogoImg.src, uploads) : refsMantidas.systemLogo
+    });
+    return snap;
+  }
+
+  function calcularDiferencas(uploads){
+    var snap = montarSnapshot(uploads);
+    var salvar = [], excluir = [];
+    Object.keys(snap).forEach(function(k){
+      if(ultimoSync[k] !== snap[k].json) salvar.push({tipo: snap[k].tipo, id: snap[k].id, dados: snap[k].json});
+    });
+    Object.keys(ultimoSync).forEach(function(k){
+      if(!snap[k]){ var p = k.split('|'); excluir.push({tipo: p[0], id: p.slice(1).join('|')}); }
+    });
+    return {salvar: salvar, excluir: excluir};
+  }
+
+  // --- indicador de salvamento no cabeçalho ---
+  var syncStatusEl = null;
+  function setSyncStatus(estado){
+    if(!syncStatusEl){
+      var badge = document.getElementById('currentUserBadge');
+      if(!badge) return;
+      syncStatusEl = document.createElement('span');
+      syncStatusEl.className = 'badge';
+      syncStatusEl.style.cssText = 'margin-left:6px;';
+      badge.parentNode.insertBefore(syncStatusEl, badge.nextSibling);
+    }
+    var t = {erro:'&#9888; Não salvo'}[estado] || '';
+    syncStatusEl.innerHTML = t;
+    syncStatusEl.style.display = t ? 'inline-flex' : 'none';
+    syncStatusEl.title = estado === 'erro' ? 'Sem conexão com o banco. Vai tentar de novo sozinho.' : '';
+  }
+
+  // --- envio das alterações ---
+  var ultimoSync = {};
+  var servidorPronto = false, sincronizando = false, syncDeNovo = false, syncTimer = null, retryTimer = null, erroAvisado = false;
+
+  function saveState(){
+    if(!servidorPronto || isPublicCadastro) return;
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(runSync, 300);
+  }
+
+  function temPendencias(){
+    if(syncTimer || sincronizando) return true;
+    var d = calcularDiferencas(null);
+    return d.salvar.length > 0 || d.excluir.length > 0;
+  }
+
+  function runSync(opts){
+    syncTimer = null;
+    if(!servidorPronto) return;
+    if(sincronizando){ syncDeNovo = true; return; }
+    var uploads = [];
+    var d = calcularDiferencas(uploads);
+    if(!d.salvar.length && !d.excluir.length){ setSyncStatus('ok'); return; }
+
+    sincronizando = true;
+    setSyncStatus('salvando');
+    var corpo = {salvar: d.salvar, excluir: d.excluir, arquivos: uploads.map(function(u){ return {id: u.id, dataUrl: u.dataUrl}; })};
+    api('/api/sync', {method:'POST', body: corpo, keepalive: opts && opts.keepalive}).then(function(){
+      d.salvar.forEach(function(it){ ultimoSync[it.tipo + '|' + it.id] = it.dados; });
+      d.excluir.forEach(function(it){ delete ultimoSync[it.tipo + '|' + it.id]; });
+      uploads.forEach(function(u){ refsEnviadas[u.ref] = true; });
+      sincronizando = false;
+      erroAvisado = false;
+      setSyncStatus('ok');
+      if(syncDeNovo){ syncDeNovo = false; runSync(); }
+    }).catch(function(err){
+      sincronizando = false;
+      if(err.status === 401){ sessaoExpirada(); return; }
+      setSyncStatus('erro');
+      if(!erroAvisado){ toast('Não foi possível salvar no banco: ' + err.message + ' — tentando de novo...'); erroAvisado = true; }
+      clearTimeout(retryTimer);
+      retryTimer = setTimeout(runSync, 5000);
+    });
+  }
+
+  // --- aplicar dados vindos do banco (reaproveita os objetos já na tela) ---
+  function mesclarLista(atual, nova){
+    var porId = {};
+    atual.forEach(function(o){ if(o && o.id) porId[o.id] = o; });
+    return nova.map(function(n){
+      var o = porId[n.id];
+      if(!o) return n;
+      Object.keys(o).forEach(function(k){ delete o[k]; });
+      return Object.assign(o, n);
+    });
+  }
+
+  function aplicarImagem(ref, imgs, placeholders, onDone){
+    if(!ref){ return Promise.resolve(); }
+    return baixarArquivo(ref).then(function(url){
+      imgs.forEach(function(img){ if(img){ img.src = url; img.style.display = 'block'; } });
+      placeholders.forEach(function(ph){ if(ph) ph.style.display = 'none'; });
+      if(onDone) onDone();
+    }).catch(function(){ return 'falhou'; });
+  }
+
+  function aplicarConfig(cfg){
+    refsMantidas = {logo:'', systemLogo:''};
+    if(!cfg) return Promise.resolve();
+    if(cfg.appTitle !== undefined) appTitleInput.value = cfg.appTitle || '';
+    var co = cfg.company || {};
+    companyNameInput.value = co.nome || '';
+    document.getElementById('companyCep').value = co.cep || '';
+    document.getElementById('companyPhone').value = co.telefone || '';
+    document.getElementById('companyEndereco').value = co.endereco || '';
+    document.getElementById('companyNumero').value = co.numero || '';
+    document.getElementById('companyBairro').value = co.bairro || '';
+    document.getElementById('companyCidade').value = co.cidade || '';
+    document.getElementById('companyEstado').value = co.estado || '';
+    updateHeaderSubtitle();
+    return Promise.all([
+      aplicarImagem(cfg.logo, [settingsLogoImg, logoImg], [settingsLogoPlaceholder, logoPlaceholder], function(){
+        var el = document.getElementById('logoDisplay'); if(el) el.classList.add('has-logo');
+      }).then(function(r){ if(r === 'falhou') refsMantidas.logo = cfg.logo; }),
+      aplicarImagem(cfg.systemLogo, [systemLogoImg, loginLogoImg], [systemLogoPlaceholder, loginLogoPlaceholder])
+        .then(function(r){ if(r === 'falhou') refsMantidas.systemLogo = cfg.systemLogo; })
+    ]);
+  }
+
+  function carregarDoServidor(){
+    return api('/api/dados').then(function(d){
+      candidates = mesclarLista(candidates, d.candidatos || []);
+      users = mesclarLista(users, d.usuarios || []);
+      messages = mesclarLista(messages, d.mensagens || []);
+      return aplicarConfig(d.config).then(function(){
+        var snap = montarSnapshot(null);
+        ultimoSync = {};
+        Object.keys(snap).forEach(function(k){ ultimoSync[k] = snap[k].json; });
+        servidorPronto = true;
+        setSyncStatus('ok');
+      });
+    });
+  }
+
+  // busca novidades de outros computadores (sem atrapalhar o que está sendo digitado)
+  var atualizando = false;
+  function atualizarDoServidor(){
+    if(!servidorPronto || atualizando || !currentUser || temPendencias()) return;
+    atualizando = true;
+    api('/api/dados').then(function(d){
+      atualizando = false;
+      if(!currentUser || temPendencias()) return;
+      var mudou = false;
+      function cmp(tipo, lista){
+        var ids = {};
+        lista.forEach(function(o){ ids[tipo+'|'+o.id] = 1; if(ultimoSync[tipo+'|'+o.id] !== JSON.stringify(o)) mudou = true; });
+        Object.keys(ultimoSync).forEach(function(k){ if(k.indexOf(tipo+'|') === 0 && !ids[k]) mudou = true; });
+      }
+      cmp('candidato', d.candidatos || []);
+      cmp('usuario', d.usuarios || []);
+      cmp('mensagem', d.mensagens || []);
+      if(d.config && ultimoSync['config|geral'] !== JSON.stringify(d.config)) mudou = true;
+      if(!mudou) return;
+
+      candidates = mesclarLista(candidates, d.candidatos || []);
+      users = mesclarLista(users, d.usuarios || []);
+      messages = mesclarLista(messages, d.mensagens || []);
+      aplicarConfig(d.config).then(function(){
+        var snap = montarSnapshot(null);
+        ultimoSync = {};
+        Object.keys(snap).forEach(function(k){ ultimoSync[k] = snap[k].json; });
+        updateMensagensBadge();
+        var ativa = document.querySelector('#tabs button.active');
+        var aba = ativa ? ativa.dataset.tab : '';
+        var foco = document.activeElement;
+        var digitando = foco && /INPUT|TEXTAREA|SELECT/.test(foco.tagName);
+        if(aba && aba !== 'cadastro' && aba !== 'avaliacao' && !digitando) showTab(aba, true);
+      });
+    }).catch(function(){ atualizando = false; });
+  }
+  setInterval(atualizarDoServidor, 30000);
+  document.addEventListener('visibilitychange', function(){ if(document.visibilityState === 'visible') atualizarDoServidor(); });
+
+  function sessaoExpirada(){
+    toast('Sua sessão expirou. Entre novamente.');
+    authToken = null;
+    try{ window.sessionStorage.removeItem(TOKEN_KEY); }catch(e){}
+    if(currentUser) doLogout(true);
+  }
+
+  // --- config pública (título e logo na tela de login e no link de cadastro) ---
+  function carregarConfigPublica(){
+    return api('/api/publico/config').then(function(cfg){
+      if(cfg.appTitle) appTitleInput.value = cfg.appTitle;
+      if(cfg.empresa) companyNameInput.value = cfg.empresa;
+      updateHeaderSubtitle();
+      if(cfg.systemLogo){
+        [systemLogoImg, loginLogoImg].forEach(function(img){ if(img){ img.src = cfg.systemLogo; img.style.display = 'block'; } });
+        [systemLogoPlaceholder, loginLogoPlaceholder].forEach(function(ph){ if(ph) ph.style.display = 'none'; });
+      }
+    }).catch(function(){});
+  }
+
+  // --- migração: leva os dados que estavam salvos só neste computador para o banco ---
+  function oferecerMigracao(){
+    if(!currentUser || currentUser.perfil !== 'Administrador') return;
+    var raw = null;
+    try{ raw = window.localStorage.getItem(STORAGE_KEY); }catch(e){ return; }
+    if(!raw) return;
+    var data;
+    try{ data = JSON.parse(raw); }catch(e){ return; }
+    var qtd = (data && Array.isArray(data.candidates)) ? data.candidates.length : 0;
+    try{ window.localStorage.setItem(STORAGE_KEY + '_migrado', raw); window.localStorage.removeItem(STORAGE_KEY); }catch(e){}
+    if(!qtd && !(data.users && data.users.length > 1) && !(data.messages && data.messages.length)) return;
+    confirmarAcao({
+      titulo: 'Dados encontrados neste computador',
+      texto: 'Encontrei dados salvos neste computador (' + qtd + ' candidato(s)).\n\nDeseja enviar esses dados para o banco de dados, para aparecerem em todos os computadores?',
+      textoOk: 'Enviar dados'
+    }, aplicarMigracao);
+  }
+  function aplicarMigracao(){
+    var idsCand = {}; candidates.forEach(function(c){ idsCand[c.id] = 1; });
+    (data.candidates || []).forEach(function(c){ if(c && c.id && !idsCand[c.id]) candidates.push(c); });
+    var idsMsg = {}; messages.forEach(function(m){ idsMsg[m.id] = 1; });
+    (data.messages || []).forEach(function(m){ if(m && m.id && !idsMsg[m.id]) messages.push(m); });
+    var logins = {}; users.forEach(function(u){ logins[String(u.usuario).toLowerCase()] = 1; });
+    (data.users || []).forEach(function(u){ if(u && u.usuario && !logins[String(u.usuario).toLowerCase()]) users.push(u); });
+
+    if(!companyNameInput.value && data.company){
+      if(data.appTitle && !appTitleInput.value) appTitleInput.value = data.appTitle;
+      companyNameInput.value = data.company.nome || '';
+      document.getElementById('companyCep').value = data.company.cep || '';
+      document.getElementById('companyPhone').value = data.company.telefone || '';
+      document.getElementById('companyEndereco').value = data.company.endereco || '';
+      document.getElementById('companyNumero').value = data.company.numero || '';
+      document.getElementById('companyBairro').value = data.company.bairro || '';
+      document.getElementById('companyCidade').value = data.company.cidade || '';
+      document.getElementById('companyEstado').value = data.company.estado || '';
+      updateHeaderSubtitle();
+    }
+    if(data.logo && !imgVisivel(logoImg)){
+      [settingsLogoImg, logoImg].forEach(function(img){ if(img){ img.src = data.logo; img.style.display = 'block'; } });
+      [settingsLogoPlaceholder, logoPlaceholder].forEach(function(ph){ if(ph) ph.style.display = 'none'; });
+      var el = document.getElementById('logoDisplay'); if(el) el.classList.add('has-logo');
+    }
+    if(data.systemLogo && !imgVisivel(systemLogoImg)){
+      [systemLogoImg, loginLogoImg].forEach(function(img){ if(img){ img.src = data.systemLogo; img.style.display = 'block'; } });
+      [systemLogoPlaceholder, loginLogoPlaceholder].forEach(function(ph){ if(ph) ph.style.display = 'none'; });
+    }
+    candidates.sort(function(a,b){ return String(b.criadoEm||'').localeCompare(String(a.criadoEm||'')); });
+    saveState();
+    var ativa = document.querySelector('#tabs button.active');
+    if(ativa) showTab(ativa.dataset.tab, true);
+    toast('Enviando dados deste computador para o banco...');
+  }
+  var candidates = [
+    {
+      id: cryptoId(),
+      nome: "Ana Beatriz Souza",
+      nomeSocial: "",
+      telefone: "(71) 99123-4567",
+      email: "ana.souza@example.com",
+      idade: 24,
+      tipoVaga: "Efetivo",
+      cnh: "Sim",
+      cnhCategoria: "B",
+      escolaridade: "Ensino Superior completo",
+      areas: "Vendas, Atendimento ao cliente",
+      cursos: "Excel avançado, Técnicas de vendas",
+      experiencias: [
+        {empresa:"Loja Modelo Ltda", funcao:"Vendedora", tempo:"2 anos"},
+        {empresa:"Comércio Silva", funcao:"Atendente", tempo:"1 ano"}
+      ],
+      curriculoNome: "curriculo_ana.pdf",
+      criadoEm: "2026-08-05T13:20:00.000Z",
+      avaliacao: null
+    },
+    {
+      id: cryptoId(),
+      nome: "Carlos Eduardo Lima",
+      nomeSocial: "",
+      telefone: "(71) 98888-2211",
+      email: "carlos.lima@example.com",
+      idade: 19,
+      tipoVaga: "Estágio",
+      cnh: "Não",
+      cnhCategoria: "",
+      escolaridade: "Ensino Superior incompleto",
+      areas: "Produção, Logística",
+      cursos: "",
+      experiencias: [
+        {empresa:"Indústria Beta", funcao:"Auxiliar de produção", tempo:"8 meses"}
+      ],
+      curriculoNome: "",
+      criadoEm: "2026-08-12T09:45:00.000Z",
+      avaliacao: {
+        percepcao: "Candidato pontual, comunicativo, demonstrou interesse genuíno pela vaga.",
+        conclusao: "APTO",
+        discPerfil: "I (Influência)",
+        parecerNome: "parecer_carlos.pdf",
+        enviadoPara: "Indústria Beta, Grupo Atlas",
+        avaliadoEm: "2026-08-14T15:00:00.000Z"
+      }
+    }
+  ];
+
+  function cryptoId(){
+    return 'c_' + Math.random().toString(36).slice(2,10) + Date.now().toString(36);
+  }
+
+  // ---------- toast ----------
+  var toastEl = document.getElementById('toast');
+  var toastTimer;
+  function confirmarAcao(opcoes, aoConfirmar){
+    var overlay = document.getElementById('confirmOverlay');
+    document.getElementById('confirmTitulo').textContent = opcoes.titulo || 'Confirmar';
+    document.getElementById('confirmTexto').textContent = opcoes.texto || '';
+    var okBtn = document.getElementById('confirmOk');
+    var textoOk = opcoes.textoOk || 'Confirmar';
+    okBtn.textContent = textoOk;
+    var senhaWrap = document.getElementById('confirmSenhaWrap');
+    var senhaInput = document.getElementById('confirmSenhaInput');
+    var senhaErro = document.getElementById('confirmSenhaErro');
+    senhaWrap.style.display = opcoes.pedirSenha ? '' : 'none';
+    senhaInput.value = '';
+    senhaErro.style.display = 'none';
+    overlay.classList.add('show');
+    if(opcoes.pedirSenha) setTimeout(function(){ senhaInput.focus(); }, 80);
+    var cancelarBtn = document.getElementById('confirmCancelar');
+    function fechar(){
+      overlay.classList.remove('show');
+      okBtn.onclick = null; cancelarBtn.onclick = null; senhaInput.onkeydown = null;
+      okBtn.disabled = false; okBtn.textContent = textoOk;
+      document.removeEventListener('keydown', porEsc);
+    }
+    okBtn.onclick = function(){
+      if(!opcoes.pedirSenha){ fechar(); aoConfirmar(); return; }
+      var senha = senhaInput.value;
+      if(!senha){ senhaErro.textContent = 'Digite sua senha.'; senhaErro.style.display = ''; senhaInput.focus(); return; }
+      okBtn.disabled = true; okBtn.textContent = 'Verificando...';
+      api('/api/verificar-senha', {method:'POST', body:{senha: senha}}).then(function(){
+        fechar(); aoConfirmar();
+      }).catch(function(err){
+        okBtn.disabled = false; okBtn.textContent = textoOk;
+        senhaErro.textContent = err.status === 401 ? 'Senha incorreta.' : ('Não foi possível verificar: ' + err.message);
+        senhaErro.style.display = '';
+        senhaInput.focus(); senhaInput.select();
+      });
+    };
+    cancelarBtn.onclick = fechar;
+    senhaInput.onkeydown = function(e){ if(e.key === 'Enter'){ e.preventDefault(); okBtn.click(); } };
+    function porEsc(e){ if(e.key === 'Escape') fechar(); }
+    document.addEventListener('keydown', porEsc);
+  }
+
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove('show'); }, 2400);
+  }
+
+  // ---------- pré-visualização de arquivos anexados (sem download) ----------
+  // transforma um "data:...;base64,AAAA" num arquivo de verdade (blob:), que os
+  // leitores de PDF/imagem embutidos do navegador (inclusive o do Edge) abrem
+  // de forma muito mais confiável do que um link gigante de texto.
+  function dataUrlParaBlobUrl(dataUrl){
+    try{
+      var virgula = dataUrl.indexOf(',');
+      var meta = dataUrl.slice(5, virgula); // "application/pdf;base64"
+      var mime = meta.split(';')[0] || 'application/octet-stream';
+      var bin = atob(dataUrl.slice(virgula + 1));
+      var bytes = new Uint8Array(bin.length);
+      for(var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      return URL.createObjectURL(new Blob([bytes], {type: mime}));
+    }catch(e){
+      return null; // se der errado, quem chamou usa o data: original como reserva
+    }
+  }
+
+  function baixarArquivoDireto(dataUrl, fileName){
+    var blobUrl = dataUrl.indexOf('data:') === 0 ? dataUrlParaBlobUrl(dataUrl) : null;
+    var urlParaBaixar = blobUrl || dataUrl;
+    var a = document.createElement('a');
+    a.href = urlParaBaixar;
+    a.download = fileName || 'arquivo';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    if(blobUrl) setTimeout(function(){ URL.revokeObjectURL(blobUrl); }, 4000);
+    toast('Baixando ' + (fileName || 'arquivo') + '...');
+  }
+
+  function openFilePreview(dataUrl, fileName){
+    if(!dataUrl) return;
+    if(dataUrl.indexOf('arquivo:') === 0){
+      toast('Carregando arquivo...');
+      baixarArquivo(dataUrl).then(function(url){ openFilePreview(url, fileName); })
+        .catch(function(){ toast('Não foi possível carregar o arquivo.'); });
+      return;
+    }
+    var ext = (fileName || '').split('.').pop().toLowerCase();
+    var isImage = /^(png|jpe?g|gif|webp|svg|bmp)$/.test(ext);
+
+    // PDF e outros tipos: alguns leitores embutidos do navegador (inclusive o do Edge)
+    // falham ao tentar abrir o arquivo dentro da tela. Mais confiável baixar direto,
+    // e a pessoa abre com o programa/app que preferir.
+    if(!isImage){
+      baixarArquivoDireto(dataUrl, fileName);
+      return;
+    }
+
+    var overlay = document.createElement('div');
+    overlay.className = 'filepreview-overlay';
+    var blobUrl = dataUrl.indexOf('data:') === 0 ? dataUrlParaBlobUrl(dataUrl) : null;
+    var urlParaExibir = blobUrl || dataUrl;
+
+    overlay.innerHTML =
+      '<div class="filepreview-box">' +
+        '<div class="filepreview-head">' +
+          '<span>'+escapeHtml(fileName||'Arquivo')+'</span>' +
+          '<div class="filepreview-actions">' +
+            '<a href="'+urlParaExibir+'" download="'+escapeHtml(fileName||'')+'">Baixar</a>' +
+            '<button type="button" data-close>Fechar</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="filepreview-body"><img src="'+urlParaExibir+'" alt="'+escapeHtml(fileName||'')+'"></div>' +
+      '</div>';
+
+    function close(){
+      if(overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      document.removeEventListener('keydown', onKey);
+      if(blobUrl) URL.revokeObjectURL(blobUrl);
+    }
+    function onKey(e){ if(e.key === 'Escape') close(); }
+    overlay.addEventListener('click', function(e){ if(e.target === overlay) close(); });
+    overlay.querySelector('[data-close]').addEventListener('click', close);
+    document.addEventListener('keydown', onKey);
+    document.body.appendChild(overlay);
+  }
+  window.openFilePreview = openFilePreview;
+
+  // ---------- identidade da empresa (título, nome + logomarca) ----------
+  var companyNameInput = document.getElementById('companyNameInput');
+  var appTitleInput = document.getElementById('appTitleInput');
+  var appTitleEl = document.getElementById('appTitle');
+  var headerSubEl = document.getElementById('headerSub');
+  var headerSubNameEl = document.getElementById('headerSubName');
+  var headerSubAddressEl = document.getElementById('headerSubAddress');
+  var headerSubContactEl = document.getElementById('headerSubContact');
+
+  function updateHeaderSubtitle(){
+    var tituloCustom = appTitleInput.value.trim();
+    var titulo = tituloCustom || 'Plataforma de Candidatos';
+    appTitleEl.textContent = titulo;
+
+    var nome = companyNameInput.value.trim();
+    var cep = document.getElementById('companyCep').value.trim();
+    var telefone = document.getElementById('companyPhone').value.trim();
+    var endereco = document.getElementById('companyEndereco').value.trim();
+    var numero = document.getElementById('companyNumero').value.trim();
+    var bairro = document.getElementById('companyBairro').value.trim();
+    var cidade = document.getElementById('companyCidade').value.trim();
+    var estado = document.getElementById('companyEstado').value.trim();
+
+    var enderecoPartes = [];
+    if(endereco) enderecoPartes.push(endereco + (numero ? ', ' + numero : ''));
+    if(bairro) enderecoPartes.push(bairro);
+    var cidadeEstado = [cidade, estado].filter(Boolean).join('/');
+    if(cidadeEstado) enderecoPartes.push(cidadeEstado);
+    var enderecoTexto = enderecoPartes.join(' — ');
+
+    var contatoPartes = [];
+    if(cep) contatoPartes.push('CEP ' + cep);
+    if(telefone) contatoPartes.push('Tel: ' + telefone);
+    var contatoTexto = contatoPartes.join(' — ');
+
+    headerSubNameEl.textContent = nome;
+    headerSubAddressEl.textContent = enderecoTexto;
+    headerSubContactEl.textContent = contatoTexto;
+    headerSubEl.style.display = (nome || enderecoTexto || contatoTexto) ? '' : 'none';
+    document.title = nome ? titulo + ' — ' + nome : titulo;
+  }
+
+  ['appTitleInput','companyNameInput','companyEndereco','companyNumero','companyBairro','companyCidade','companyEstado'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.addEventListener('input', updateHeaderSubtitle);
+  });
+  updateHeaderSubtitle();
+
+  var settingsLogoInput = document.getElementById('settingsLogoInput');
+  var settingsLogoImg = document.getElementById('settingsLogoImg');
+  var settingsLogoPlaceholder = document.getElementById('settingsLogoPlaceholder');
+  var logoImg = document.getElementById('logoImg');
+  var logoPlaceholder = document.getElementById('logoPlaceholder');
+  var logoDisplay = document.getElementById('logoDisplay');
+  settingsLogoInput.addEventListener('change', function(){
+    var file = this.files && this.files[0];
+    if(!file) return;
+    if(!file.type.match(/^image\//)){ toast('Escolha um arquivo de imagem para a logomarca.'); return; }
+    var reader = new FileReader();
+    reader.onload = function(evt){
+      // atualiza a prévia dentro de Usuários e a logomarca da empresa no cabeçalho
+      [settingsLogoImg, logoImg].forEach(function(img){ img.src = evt.target.result; img.style.display = 'block'; });
+      [settingsLogoPlaceholder, logoPlaceholder].forEach(function(ph){ ph.style.display = 'none'; });
+      if(logoDisplay) logoDisplay.classList.add('has-logo');
+      saveState();
+      toast('Logomarca da empresa atualizada.');
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // ---------- logo do sistema (tela de login — diferente da logo da empresa) ----------
+  var systemLogoInput = document.getElementById('systemLogoInput');
+  var systemLogoImg = document.getElementById('systemLogoImg');
+  var systemLogoPlaceholder = document.getElementById('systemLogoPlaceholder');
+  var loginLogoImg = document.getElementById('loginLogoImg');
+  var loginLogoPlaceholder = document.getElementById('loginLogoPlaceholder');
+  systemLogoInput.addEventListener('change', function(){
+    var file = this.files && this.files[0];
+    if(!file) return;
+    if(!file.type.match(/^image\//)){ toast('Escolha um arquivo de imagem para a logo do sistema.'); return; }
+    var reader = new FileReader();
+    reader.onload = function(evt){
+      // atualiza a prévia dentro de Usuários e a logo exibida na tela de login
+      [systemLogoImg, loginLogoImg].forEach(function(img){ img.src = evt.target.result; img.style.display = 'block'; });
+      [systemLogoPlaceholder, loginLogoPlaceholder].forEach(function(ph){ ph.style.display = 'none'; });
+      saveState();
+      toast('Logo do sistema atualizada.');
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // ---------- endereço da empresa (CEP com busca automática) ----------
+  var cepInput = document.getElementById('companyCep');
+  var cepStatus = document.getElementById('cepStatus');
+  var companyPhoneInput = document.getElementById('companyPhone');
+
+  cepInput.addEventListener('input', function(){
+    var d = this.value.replace(/\D/g,'').slice(0,8);
+    this.value = d.length > 5 ? d.slice(0,5) + '-' + d.slice(5) : d;
+    cepStatus.textContent = '';
+    cepStatus.style.color = '';
+    updateHeaderSubtitle();
+  });
+
+  cepInput.addEventListener('blur', function(){
+    var digits = this.value.replace(/\D/g,'');
+    if(digits.length !== 8){
+      if(digits.length > 0){ cepStatus.textContent = 'CEP incompleto.'; cepStatus.style.color = 'var(--danger)'; }
+      return;
+    }
+    cepStatus.textContent = 'Buscando endereço...';
+    cepStatus.style.color = 'var(--text-muted)';
+    fetch('https://viacep.com.br/ws/' + digits + '/json/')
+      .then(function(resp){ return resp.json(); })
+      .then(function(data){
+        if(data.erro){
+          cepStatus.textContent = 'CEP não encontrado.';
+          cepStatus.style.color = 'var(--danger)';
+          return;
+        }
+        document.getElementById('companyEndereco').value = data.logradouro || '';
+        document.getElementById('companyBairro').value = data.bairro || '';
+        document.getElementById('companyCidade').value = data.localidade || '';
+        document.getElementById('companyEstado').value = data.uf || '';
+        updateHeaderSubtitle();
+        cepStatus.textContent = 'Endereço preenchido automaticamente.';
+        cepStatus.style.color = 'var(--accent)';
+      })
+      .catch(function(){
+        cepStatus.textContent = 'Não foi possível buscar o CEP agora. Preencha manualmente.';
+        cepStatus.style.color = 'var(--danger)';
+      });
+  });
+
+  companyPhoneInput.addEventListener('input', function(){
+    var pos = this.selectionStart;
+    var lenBefore = this.value.length;
+    this.value = formatPhoneBR(this.value);
+    var lenAfter = this.value.length;
+    var newPos = Math.max(0, pos + (lenAfter - lenBefore));
+    this.setSelectionRange(newPos, newPos);
+    updateHeaderSubtitle();
+  });
+
+  // Enter avança para o próximo campo, igual ao formulário de Cadastro.
+  // onLastEnter (opcional) roda quando Enter é apertado no último campo da cadeia — por padrão, só tira o foco.
+  function bindEnterChain(ids, onLastEnter){
+    ids.forEach(function(id, idx){
+      var el = document.getElementById(id);
+      if(!el) return;
+      el.addEventListener('keydown', function(e){
+        if(e.key !== 'Enter' || el.tagName === 'TEXTAREA') return;
+        e.preventDefault();
+        if(idx < ids.length - 1){
+          var next = document.getElementById(ids[idx + 1]);
+          if(next) next.focus();
+        } else if(onLastEnter){
+          onLastEnter();
+        } else {
+          el.blur();
+        }
+      });
+    });
+  }
+  bindEnterChain(
+    ['appTitleInput','companyNameInput','companyCep','companyPhone','companyEndereco','companyNumero','companyBairro','companyCidade','companyEstado'],
+    function(){ document.getElementById('companySaveBtn').click(); }
+  );
+
+  document.getElementById('companySaveBtn').addEventListener('click', function(){
+    saveState();
+    toast('Dados da empresa salvos.');
+  });
+
+  // ---------- tabs ----------
+  var tabButtons = document.querySelectorAll('#tabs button');
+  var panels = {
+    inicio: document.getElementById('tab-inicio'),
+    cadastro: document.getElementById('tab-cadastro'),
+    avaliacao: document.getElementById('tab-avaliacao'),
+    apto: document.getElementById('tab-apto'),
+    contratado: document.getElementById('tab-contratado'),
+    naoapto: document.getElementById('tab-naoapto'),
+    dashboard: document.getElementById('tab-dashboard'),
+    relatorio: document.getElementById('tab-relatorio'),
+    mensagens: document.getElementById('tab-mensagens'),
+    usuarios: document.getElementById('tab-usuarios')
+  };
+  var tabIndicator = document.getElementById('tabIndicator');
+  function moveTabIndicator(btn){
+    if(!tabIndicator) return;
+    if(!btn){ tabIndicator.style.opacity = '0'; return; }
+    tabIndicator.style.opacity = '1';
+    tabIndicator.style.left = btn.offsetLeft + 'px';
+    tabIndicator.style.width = btn.offsetWidth + 'px';
+  }
+  function showTab(name, semAtualizar){
+    if(!semAtualizar) setTimeout(atualizarDoServidor, 0);
+    var activeBtn = null;
+    tabButtons.forEach(function(b){
+      var isActive = b.dataset.tab === name;
+      b.classList.toggle('active', isActive);
+      if(isActive) activeBtn = b;
+    });
+    moveTabIndicator(activeBtn);
+    Object.keys(panels).forEach(function(k){ panels[k].style.display = (k===name) ? '' : 'none'; });
+    var backBar = document.getElementById('backBar');
+    if(backBar){
+      backBar.style.display = (name === 'inicio' || isPublicCadastro) ? 'none' : '';
+      document.getElementById('backTitle').innerHTML = TITULOS_MODULOS[name] || '';
+    }
+    if(name === 'inicio') renderInicio();
+    if(name === 'cadastro') carregarConvites();
+    if(name === 'avaliacao') renderAvalList();
+    if(name === 'apto') renderStatusList('APTO');
+    if(name === 'contratado') renderStatusList('CONTRATADO');
+    if(name === 'naoapto') renderStatusList('NÃO APTO');
+    if(name === 'dashboard') { renderStats(); renderDashboard(); }
+    if(name === 'relatorio') { populateAreaFilter(); populateCidadeFilter(); renderRelatorio(); }
+    if(name === 'mensagens') { renderMensagens(); markMensagensRead(); }
+    if(name === 'usuarios') { renderUsersList(); }
+    var roleAtual = currentUser ? currentUser.perfil : null;
+    var hdrUsuarios = document.getElementById('headerUsuariosBtn');
+    if(hdrUsuarios) hdrUsuarios.style.display = (roleAtual === 'Administrador' && name === 'inicio' && !isPublicCadastro) ? '' : 'none';
+  }
+  tabButtons.forEach(function(b){
+    b.addEventListener('click', function(){ showTab(b.dataset.tab); });
+  });
+  window.addEventListener('resize', function(){
+    moveTabIndicator(document.querySelector('#tabs button.active'));
+  });
+
+  // ---------- links de cadastro de uso único (só administrador) ----------
+  var convites = [];
+  function linkDoConvite(token){ return window.location.href.split('#')[0] + '#cadastro=' + token; }
+  function copiarTexto(text){
+    if(navigator.clipboard){ navigator.clipboard.writeText(text).then(function(){ toast('Link copiado!'); }, function(){ toast('Copie manualmente: ' + text); }); }
+    else { toast('Copie manualmente: ' + text); }
+  }
+  function renderConvites(){
+    var wrap = document.getElementById('convitesList');
+    if(!wrap) return;
+    // só mostra os links que ainda estão esperando o candidato; preenchidos vão para a aba Avaliação
+    var pendentes = convites.filter(function(cv){ return !cv.cancelado && !cv.usado_em; });
+    if(!pendentes.length){ wrap.innerHTML = '<div class="empty">Nenhum link aguardando preenchimento.</div>'; return; }
+    wrap.innerHTML = pendentes.map(function(cv){
+      var pill, podeUsar = false;
+      if(cv.cancelado){ pill = '<span class="pill naoapto">Cancelado</span>'; }
+      else if(cv.usado_em){ pill = '<span class="pill apto">Preenchido em ' + formatDateHoraBR(cv.usado_em) + '</span>'; }
+      else { pill = '<span class="pill pendente">Aguardando preenchimento</span>'; podeUsar = true; }
+      var link = linkDoConvite(cv.token);
+      return '<div class="convite-item">' +
+        '<div class="convite-top"><strong>' + escapeHtml(cv.descricao || 'Link sem nome') + '</strong>' + pill + '</div>' +
+        '<div class="convite-meta">Gerado em ' + formatDateHoraBR(cv.criado_em) + (cv.criado_por ? ' por ' + escapeHtml(cv.criado_por) : '') + '</div>' +
+        (podeUsar ?
+          '<div class="convite-link"><code>' + escapeHtml(link) + '</code>' +
+            '<button type="button" class="btn btn-ghost btn-sm" data-copiar="' + cv.token + '">Copiar</button>' +
+            '<a class="btn btn-ghost btn-sm" target="_blank" rel="noopener" href="https://wa.me/?text=' + encodeURIComponent('Olá! Preencha seu cadastro pelo link: ' + link) + '">WhatsApp</a>' +
+            '<button type="button" class="btn btn-ghost btn-sm" data-cancelar="' + cv.token + '">Cancelar</button>' +
+          '</div>' : '') +
+      '</div>';
+    }).join('');
+    wrap.querySelectorAll('[data-copiar]').forEach(function(b){
+      b.addEventListener('click', function(){ copiarTexto(linkDoConvite(b.dataset.copiar)); });
+    });
+    wrap.querySelectorAll('[data-cancelar]').forEach(function(b){
+      b.addEventListener('click', function(){
+        confirmarAcao({
+          titulo: 'Cancelar link',
+          texto: 'Cancelar este link? Quem recebeu não vai mais conseguir preencher.',
+          textoOk: 'Cancelar link'
+        }, function(){
+          api('/api/convites/cancelar', {method:'POST', body:{token: b.dataset.cancelar}})
+            .then(function(){ toast('Link cancelado.'); carregarConvites(); })
+            .catch(function(err){ toast('Não foi possível cancelar: ' + err.message); });
+        });
+      });
+    });
+  }
+  function carregarConvites(){
+    if(!currentUser || (currentUser.perfil !== 'Administrador' && currentUser.perfil !== 'Membro') || isPublicCadastro) return;
+    api('/api/convites').then(function(r){ convites = r.convites || []; renderConvites(); })
+      .catch(function(){ var w = document.getElementById('convitesList'); if(w) w.innerHTML = '<div class="empty">Não foi possível carregar os links.</div>'; });
+  }
+  document.getElementById('conviteGerarBtn').addEventListener('click', function(){
+    var btn = this;
+    var descEl = document.getElementById('conviteDesc');
+    btn.disabled = true;
+    api('/api/convites', {method:'POST', body:{descricao: descEl.value.trim()}}).then(function(r){
+      descEl.value = '';
+      copiarTexto(linkDoConvite(r.token));
+      toast('Link gerado e copiado! Ele só pode ser usado uma vez.');
+      carregarConvites();
+    }).catch(function(err){ toast('Não foi possível gerar o link: ' + err.message); })
+      .then(function(){ btn.disabled = false; });
+  });
+  document.getElementById('conviteDesc').addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){ e.preventDefault(); document.getElementById('conviteGerarBtn').click(); }
+  });
+
+  // tela do link público quando não pode (ou não pode mais) ser preenchido
+  function mostrarMensagemPublica(ico, titulo, texto){
+    var form = document.getElementById('formCadastro');
+    var card = form.parentNode;
+    Array.prototype.forEach.call(card.children, function(el){ el.style.display = 'none'; });
+    var box = document.getElementById('publicMsg');
+    if(!box){ box = document.createElement('div'); box.id = 'publicMsg'; box.className = 'public-msg'; card.appendChild(box); }
+    box.style.display = '';
+    box.innerHTML = '<div class="ico">' + ico + '</div><h2>' + escapeHtml(titulo) + '</h2><p>' + escapeHtml(texto) + '</p>';
+  }
+  function linkIndisponivel(motivo){
+    if(motivo === 'usado') mostrarMensagemPublica('&#9989;', 'Este link já foi utilizado', 'O cadastro deste link já foi enviado. Se precisar de um novo, fale com quem te enviou.');
+    else mostrarMensagemPublica('&#9888;&#65039;', 'Link inválido ou expirado', 'Este link de cadastro não está mais disponível. Peça um novo link a quem te enviou.');
+  }
+
+  // ---------- experience blocks (cadastro) ----------
+  var expBlocksEl = document.getElementById('expBlocks');
+  for(var i=1;i<=3;i++){
+    var div = document.createElement('div');
+    div.className = 'exp-block';
+    div.innerHTML =
+      '<div class="grid">' +
+        '<div><label>Empresa ' + (i>1 ? '<span class="opt">(opcional)</span>' : '') + '</label>' +
+        '<input type="text" id="exp_empresa_'+i+'"></div>' +
+        '<div><label>Função</label><input type="text" id="exp_funcao_'+i+'"></div>' +
+        '<div><label>Tempo na empresa</label><input type="text" id="exp_tempo_'+i+'" placeholder="Ex: 1 ano e 3 meses"></div>' +
+      '</div>';
+    expBlocksEl.appendChild(div);
+  }
+
+  // ---------- máscara de telefone (funciona ao digitar, colar ou ditar por voz) ----------
+  function formatPhoneBR(raw){
+    var d = (raw || '').replace(/\D/g,'').slice(0, 11);
+    if(!d) return '';
+    if(d.length <= 2) return '(' + d;
+    if(d.length <= 6) return '(' + d.slice(0,2) + ') ' + d.slice(2);
+    if(d.length <= 10) return '(' + d.slice(0,2) + ') ' + d.slice(2,6) + '-' + d.slice(6);
+    return '(' + d.slice(0,2) + ') ' + d.slice(2,7) + '-' + d.slice(7);
+  }
+  var telefoneInput = document.getElementById('c_telefone');
+  telefoneInput.addEventListener('input', function(){
+    var pos = this.selectionStart;
+    var lenBefore = this.value.length;
+    this.value = formatPhoneBR(this.value);
+    var lenAfter = this.value.length;
+    // mantém o cursor perto de onde a pessoa estava digitando, mesmo com a formatação
+    var newPos = Math.max(0, pos + (lenAfter - lenBefore));
+    this.setSelectionRange(newPos, newPos);
+  });
+
+  // ---------- CNH conditional ----------
+  document.querySelectorAll('input[name=c_cnh]').forEach(function(r){
+    r.addEventListener('change', function(){
+      document.getElementById('c_cnhCatWrap').style.display = (this.value === 'Sim') ? '' : 'none';
+    });
+  });
+
+  // ---------- Enter avança para o próximo campo (em vez de enviar o formulário) ----------
+  (function(){
+    var CADASTRO_ORDER = [
+      'c_nome','c_nomeSocial','c_telefone','c_email','c_idade','c_tipoVaga','c_cidade',
+      'c_escolaridade','c_areas','c_cursos',
+      'exp_empresa_1','exp_funcao_1','exp_tempo_1',
+      'exp_empresa_2','exp_funcao_2','exp_tempo_2',
+      'exp_empresa_3','exp_funcao_3','exp_tempo_3',
+      'c_curriculo'
+    ];
+    function focusById(id){ var el = document.getElementById(id); if(el) el.focus(); }
+
+    document.getElementById('formCadastro').addEventListener('keydown', function(e){
+      if(e.key !== 'Enter') return;
+      var t = e.target;
+      if(t.tagName === 'TEXTAREA' || (t.tagName === 'BUTTON' && t.type === 'submit')) return; // comportamento normal
+
+      e.preventDefault();
+
+      // grupo de rádio da CNH
+      if(t.name === 'c_cnh'){
+        var cnhWrap = document.getElementById('c_cnhCatWrap');
+        if(cnhWrap && cnhWrap.style.display !== 'none'){ focusById('c_cnhCategoria'); }
+        else { focusById('c_escolaridade'); }
+        return;
+      }
+      if(t.id === 'c_cnhCategoria'){ focusById('c_escolaridade'); return; }
+      if(t.id === 'c_cidade'){
+        var checkedRadio = document.querySelector('input[name=c_cnh]:checked');
+        if(checkedRadio){ checkedRadio.focus(); } else { focusById('c_escolaridade'); }
+        return;
+      }
+
+      var idx = CADASTRO_ORDER.indexOf(t.id);
+      if(idx === -1) return;
+      if(idx < CADASTRO_ORDER.length - 1){
+        focusById(CADASTRO_ORDER[idx + 1]);
+      } else {
+        var submitBtn = document.querySelector('#formCadastro button[type=submit]');
+        if(submitBtn) submitBtn.focus();
+      }
+    });
+  })();
+
+  // ---------- form submit ----------
+  document.getElementById('formCadastro').addEventListener('submit', function(e){
+    e.preventDefault();
+    var form = this;
+    var cnhVal = document.querySelector('input[name=c_cnh]:checked').value;
+    var experiencias = [];
+    for(var i=1;i<=3;i++){
+      var emp = document.getElementById('exp_empresa_'+i).value.trim();
+      var fun = document.getElementById('exp_funcao_'+i).value.trim();
+      var tem = document.getElementById('exp_tempo_'+i).value.trim();
+      if(emp || fun || tem){ experiencias.push({empresa:emp, funcao:fun, tempo:tem}); }
+    }
+    var fileInput = document.getElementById('c_curriculo');
+    var curriculoFile = (fileInput.files && fileInput.files[0]) ? fileInput.files[0] : null;
+
+    function finishSubmit(curriculoNome, curriculoDataUrl){
+      var candidate = {
+        id: cryptoId(),
+        nome: document.getElementById('c_nome').value.trim(),
+        nomeSocial: document.getElementById('c_nomeSocial').value.trim(),
+        telefone: document.getElementById('c_telefone').value.trim(),
+        email: document.getElementById('c_email').value.trim(),
+        idade: document.getElementById('c_idade').value,
+        tipoVaga: document.getElementById('c_tipoVaga').value,
+        cidade: document.getElementById('c_cidade').value.trim(),
+        cnh: cnhVal,
+        cnhCategoria: document.getElementById('c_cnhCategoria').value.trim(),
+        escolaridade: document.getElementById('c_escolaridade').value,
+        areas: document.getElementById('c_areas').value.trim(),
+        cursos: document.getElementById('c_cursos').value.trim(),
+        experiencias: experiencias,
+        curriculoNome: curriculoNome || "",
+        curriculoDataUrl: curriculoDataUrl || "",
+        criadoEm: new Date().toISOString(),
+        avaliacao: null
+      };
+      function limparFormulario(){
+        form.reset();
+        document.getElementById('c_cnhCatWrap').style.display = 'none';
+        updateCadastroProgress();
+      }
+      if(isPublicCadastro){
+        var btnEnviar = form.querySelector('button[type=submit]');
+        var textoBtn = btnEnviar.textContent;
+        btnEnviar.disabled = true;
+        btnEnviar.textContent = 'Enviando...';
+        api('/api/publico/candidato', {method:'POST', body:{candidato: candidate, convite: conviteToken}}).then(function(){
+          limparFormulario();
+          mostrarMensagemPublica('&#127881;', 'Cadastro enviado com sucesso!', 'Obrigado! Recebemos suas informações. Este link não pode mais ser usado.');
+        }).catch(function(err){
+          if(err.status === 410) linkIndisponivel('usado');
+          else toast('Não foi possível enviar o cadastro: ' + err.message);
+        }).then(function(){
+          btnEnviar.disabled = false;
+          btnEnviar.textContent = textoBtn;
+        });
+        return;
+      }
+      candidates.unshift(candidate);
+      limparFormulario();
+      saveState();
+      toast('Cadastro enviado com sucesso!');
+    }
+
+    if(curriculoFile){
+      var submitBtn = form.querySelector('button[type=submit]');
+      var textoOriginal = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Salvando arquivo...';
+      var reader = new FileReader();
+      reader.onload = function(evt){
+        submitBtn.disabled = false;
+        submitBtn.textContent = textoOriginal;
+        finishSubmit(curriculoFile.name, evt.target.result);
+      };
+      reader.onerror = function(){
+        submitBtn.disabled = false;
+        submitBtn.textContent = textoOriginal;
+        toast('Não foi possível ler o currículo. Tente novamente.');
+      };
+      reader.readAsDataURL(curriculoFile);
+    } else {
+      finishSubmit("", "");
+    }
+  });
+
+  // ---------- barra de progresso do cadastro ----------
+  var CADASTRO_REQUIRED_IDS = ['c_nome','c_telefone','c_email','c_idade','c_tipoVaga','c_cidade','c_escolaridade','c_areas'];
+  function updateCadastroProgress(){
+    var filled = CADASTRO_REQUIRED_IDS.filter(function(id){
+      var el = document.getElementById(id);
+      return el && el.value && el.value.trim() !== '';
+    }).length;
+    var pct = Math.round((filled / CADASTRO_REQUIRED_IDS.length) * 100);
+    var fill = document.getElementById('progressFill');
+    var pctLabel = document.getElementById('progressPct');
+    if(fill) fill.style.width = pct + '%';
+    if(pctLabel) pctLabel.textContent = pct + '%';
+  }
+  document.getElementById('formCadastro').addEventListener('input', updateCadastroProgress);
+  document.getElementById('formCadastro').addEventListener('change', updateCadastroProgress);
+  updateCadastroProgress();
+
+  // ---------- unlock (avaliação sigilosa) ----------
+  document.getElementById('unlockBtn').addEventListener('click', tryUnlock);
+  document.getElementById('pinInput').addEventListener('keydown', function(e){ if(e.key==='Enter') tryUnlock(); });
+  function tryUnlock(){
+    var val = document.getElementById('pinInput').value.trim();
+    if(val === PIN){
+      unlocked = true;
+      document.getElementById('lockCard').style.display = 'none';
+      document.getElementById('avaliacaoContent').style.display = '';
+      renderAvalList();
+    } else {
+      toast('Código incorreto.');
+    }
+  }
+
+  function escapeHtml(s){
+    return (s||'').toString().replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function conclusaoPill(c){
+    if(!c || !c.avaliacao) return '<span class="pill pendente">Pendente</span>';
+    var v = c.avaliacao.conclusao;
+    if(v === 'APTO'){
+      if(c.avaliacao.contratado === 'Sim') return '<span class="pill contratado">Contratado</span>';
+      return '<span class="pill apto">APTO</span>';
+    }
+    if(v === 'NÃO APTO') return '<span class="pill naoapto">NÃO APTO</span>';
+    return '<span class="pill pendente">Pendente</span>';
+  }
+
+  // ---------- avaliação list ----------
+  function renderAvalList(){
+    var wrap = document.getElementById('avalList');
+    var searchEl = document.getElementById('avalSearchInput');
+    var q = (searchEl ? searchEl.value : '').trim().toLowerCase();
+    // só mostra quem ainda não foi concluído (Apto/Contratado/Não apto somem daqui e vão para a aba certa)
+    var pendentes = candidates.filter(function(c){
+      if(candidateStatus(c) !== 'PENDENTE') return false;
+      if(!q) return true;
+      return (c.nome||'').toLowerCase().indexOf(q) > -1 ||
+             (c.areas||'').toLowerCase().indexOf(q) > -1 ||
+             (c.cidade||'').toLowerCase().indexOf(q) > -1;
+    });
+    if(!pendentes.length){ wrap.innerHTML = '<div class="empty">Nenhum candidato pendente de avaliação.</div>'; return; }
+    wrap.innerHTML = '';
+    pendentes.forEach(function(c){
+      buildAvalRow(c, wrap);
+    });
+  }
+  var avalSearchInputEl = document.getElementById('avalSearchInput');
+  if(avalSearchInputEl) avalSearchInputEl.addEventListener('input', renderAvalList);
+
+  function avalFormHtml(c){
+    var a = c.avaliacao || {};
+    var curriculoHtml = c.curriculoNome ?
+      (c.curriculoDataUrl ?
+        '<a href="#" class="file-link" data-preview-name="'+escapeHtml(c.curriculoNome)+'" onclick="openFilePreview(this.dataset.previewUrl,this.dataset.previewName);return false;" data-preview-url="'+c.curriculoDataUrl+'">&#128196; '+escapeHtml(c.curriculoNome)+' (baixar)</a>' :
+        escapeHtml(c.curriculoNome)) :
+      '<span class="meta">Nenhum currículo anexado</span>';
+    return (
+      '<div class="grid">' +
+        '<div class="full" style="margin-bottom:4px;">' +
+          '<dl style="margin:0;">' +
+            '<dt>Telefone</dt><dd style="margin:0 0 6px;">'+escapeHtml(c.telefone||'—')+'</dd>' +
+            '<dt>E-mail</dt><dd style="margin:0 0 6px;">'+escapeHtml(c.email||'—')+'</dd>' +
+            '<dt>Currículo</dt><dd style="margin:0;">'+curriculoHtml+'</dd>' +
+          '</dl>' +
+        '</div>' +
+        '<div class="full"><label>Percepção da entrevistadora</label>' +
+        '<textarea id="a_percepcao_'+c.id+'">'+escapeHtml(a.percepcao||'')+'</textarea></div>' +
+        '<div><label>Conclusão</label>' +
+        '<select id="a_conclusao_'+c.id+'">' +
+          '<option value="">Selecione</option>' +
+          '<option value="APTO"'+(a.conclusao==='APTO'?' selected':'')+'>APTO</option>' +
+          '<option value="NÃO APTO"'+(a.conclusao==='NÃO APTO'?' selected':'')+'>NÃO APTO</option>' +
+        '</select></div>' +
+        '<div><label>Perfil DISC</label>' +
+        '<select id="a_disc_'+c.id+'">' +
+          '<option value="">Selecione</option>' +
+          ['D (Dominância)','I (Influência)','S (Estabilidade)','C (Conformidade)'].map(function(o){
+            return '<option'+(a.discPerfil===o?' selected':'')+'>'+o+'</option>';
+          }).join('') +
+        '</select></div>' +
+        '<div><label>Data da entrevista/avaliação</label>' +
+        '<input type="date" id="a_data_'+c.id+'" value="'+(a.avaliadoEm ? a.avaliadoEm.slice(0,10) : new Date().toISOString().slice(0,10))+'"></div>' +
+        '<div class="full"><label>Anexar parecer</label><input type="file" id="a_parecer_'+c.id+'">' +
+        '<div class="meta" id="a_parecerSelecionado_'+c.id+'" style="margin-top:4px;'+(a.parecerNome ? '' : 'display:none;')+'">'+
+          (a.parecerNome ? (a.parecerDataUrl ? '<a href="#" class="file-link" data-preview-name="'+escapeHtml(a.parecerNome)+'" onclick="openFilePreview(this.dataset.previewUrl,this.dataset.previewName);return false;" data-preview-url="'+a.parecerDataUrl+'">Arquivo atual: '+escapeHtml(a.parecerNome)+' (baixar)</a>' : 'Arquivo atual: '+escapeHtml(a.parecerNome)) : '') +
+        '</div>' +
+        '</div>' +
+        '<div class="full"><label>Enviado para quais empresas</label>' +
+        '<input type="text" id="a_enviado_'+c.id+'" value="'+escapeHtml(a.enviadoPara||'')+'" placeholder="Ex: Empresa X, Empresa Y"></div>' +
+        '<div><label>Contratado? <span class="opt">(depois que a empresa confirmar)</span></label>' +
+        '<select id="a_contratado_'+c.id+'">' +
+          '<option value=""'+(!a.contratado?' selected':'')+'>Ainda não sei</option>' +
+          '<option value="Não"'+(a.contratado==='Não'?' selected':'')+'>Não</option>' +
+          '<option value="Sim"'+(a.contratado==='Sim'?' selected':'')+'>Sim</option>' +
+        '</select></div>' +
+        '<div><label>Contratado por qual empresa <span class="opt">(opcional)</span></label>' +
+        '<input type="text" id="a_contratadoEmpresa_'+c.id+'" value="'+escapeHtml(a.contratadoEmpresa||'')+'" placeholder="Ex: Empresa X"></div>' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">' +
+        '<button class="btn btn-primary btn-sm" id="a_save_'+c.id+'">Salvar avaliação</button>' +
+        '<button type="button" class="btn btn-danger btn-sm" id="a_excluir_'+c.id+'" style="margin-left:auto;">&#128465; Excluir candidato</button>' +
+      '</div>' +
+      inviteBlockHtml(c, 'a')
+    );
+  }
+
+  function bindAvalForm(c, container){
+    container.querySelector('#a_excluir_'+c.id).addEventListener('click', function(){
+      confirmarAcao({
+        titulo: 'Excluir candidato',
+        texto: 'Excluir o candidato ' + (c.nome || '') + '?\n\nEle some de todas as abas e o currículo e a avaliação também são apagados. Essa ação não pode ser desfeita.',
+        textoOk: 'Excluir',
+        pedirSenha: true
+      }, function(){
+        candidates = candidates.filter(function(x){ return x.id !== c.id; });
+        saveState();
+        renderAvalList();
+        toast('Candidato excluído.');
+      });
+    });
+    var parecerInput = container.querySelector('#a_parecer_'+c.id);
+    var parecerLabel = container.querySelector('#a_parecerSelecionado_'+c.id);
+    parecerInput.addEventListener('change', function(){
+      var f = this.files && this.files[0];
+      if(f){
+        parecerLabel.textContent = 'Arquivo selecionado: ' + f.name;
+        parecerLabel.style.display = '';
+      } else {
+        var previo = (c.avaliacao && c.avaliacao.parecerNome) || '';
+        parecerLabel.textContent = previo ? 'Arquivo atual: ' + previo : '';
+        parecerLabel.style.display = previo ? '' : 'none';
+      }
+    });
+    container.querySelector('#a_save_'+c.id).addEventListener('click', function(){
+      var btn = this;
+      var fileInput = container.querySelector('#a_parecer_'+c.id);
+      var newFileObj = (fileInput.files && fileInput.files[0]) ? fileInput.files[0] : null;
+
+      function finishSave(parecerNome, parecerDataUrl){
+        var dataVal = container.querySelector('#a_data_'+c.id).value; // yyyy-mm-dd, informado manualmente
+        c.avaliacao = {
+          percepcao: container.querySelector('#a_percepcao_'+c.id).value.trim(),
+          conclusao: container.querySelector('#a_conclusao_'+c.id).value,
+          discPerfil: container.querySelector('#a_disc_'+c.id).value,
+          parecerNome: parecerNome || "",
+          parecerDataUrl: parecerDataUrl || "",
+          enviadoPara: container.querySelector('#a_enviado_'+c.id).value.trim(),
+          contratado: container.querySelector('#a_contratado_'+c.id).value,
+          contratadoEmpresa: container.querySelector('#a_contratadoEmpresa_'+c.id).value.trim(),
+          avaliadoEm: dataVal ? new Date(dataVal + 'T12:00:00').toISOString() : ((c.avaliacao && c.avaliacao.avaliadoEm) || '')
+        };
+        saveState();
+        toast('Avaliação salva.');
+        renderAvalList();
+      }
+
+      if(newFileObj){
+        btn.disabled = true;
+        var textoOriginal = btn.textContent;
+        btn.textContent = 'Salvando arquivo...';
+        var reader = new FileReader();
+        reader.onload = function(evt){
+          btn.disabled = false;
+          btn.textContent = textoOriginal;
+          finishSave(newFileObj.name, evt.target.result);
+        };
+        reader.onerror = function(){
+          btn.disabled = false;
+          btn.textContent = textoOriginal;
+          toast('Não foi possível ler o arquivo. Tente novamente.');
+        };
+        reader.readAsDataURL(newFileObj);
+      } else {
+        var parecerAtual = c.avaliacao || {};
+        finishSave(parecerAtual.parecerNome, parecerAtual.parecerDataUrl);
+      }
+    });
+    bindInviteBlock(c, container, 'a');
+  }
+
+  // ---------- busca ----------
+  function renderStats(){
+    var total = candidates.length;
+    var aptos = candidates.filter(function(c){ return c.avaliacao && c.avaliacao.conclusao === 'APTO'; }).length;
+    var naoAptos = candidates.filter(function(c){ return c.avaliacao && c.avaliacao.conclusao === 'NÃO APTO'; }).length;
+    var pendentes = total - aptos - naoAptos;
+    var contratados = candidates.filter(function(c){ return c.avaliacao && c.avaliacao.conclusao === 'APTO' && c.avaliacao.contratado === 'Sim'; }).length;
+    var stats = [
+      {n: total, l: 'Total de candidatos'},
+      {n: aptos, l: 'Marcados como APTO'},
+      {n: contratados, l: 'Contratados'},
+      {n: naoAptos, l: 'Marcados como NÃO APTO'},
+      {n: pendentes, l: 'Aguardando avaliação'}
+    ];
+    document.getElementById('statsRow').innerHTML = stats.map(function(s){
+      return '<div class="stat"><div class="n">'+s.n+'</div><div class="l">'+s.l+'</div></div>';
+    }).join('');
+  }
+
+  // ---------- dashboard charts ----------
+  function countBy(list, getKey){
+    var map = {};
+    list.forEach(function(item){
+      var keys = getKey(item);
+      if(!Array.isArray(keys)) keys = [keys];
+      keys.forEach(function(k){
+        k = (k || '').toString().trim();
+        if(!k) return;
+        map[k] = (map[k] || 0) + 1;
+      });
+    });
+    return Object.keys(map).map(function(k){ return {label:k, value:map[k]}; })
+      .sort(function(a,b){ return b.value - a.value; });
+  }
+
+  // fold a long tail into "Outras" so a magnitude chart never seats more than ~7 bars
+  function foldTail(rows, cap){
+    if(rows.length <= cap) return rows;
+    var head = rows.slice(0, cap - 1);
+    var tailTotal = rows.slice(cap - 1).reduce(function(s,r){ return s + r.value; }, 0);
+    head.push({label:'Outras', value: tailTotal});
+    return head;
+  }
+
+  function renderBarChart(containerId, rows, opts){
+    opts = opts || {};
+    var el = document.getElementById(containerId);
+    if(!rows.length){ el.innerHTML = '<div class="empty">Sem dados ainda.</div>'; return; }
+    var max = Math.max.apply(null, rows.map(function(r){ return r.value; }));
+    el.innerHTML = rows.map(function(r){
+      var pct = max > 0 ? Math.round((r.value / max) * 100) : 0;
+      var cls = opts.colorFor ? opts.colorFor(r.label) : '';
+      var icon = opts.iconFor ? opts.iconFor(r.label) : '';
+      return (
+        '<div class="bar-row" title="'+escapeHtml(r.label)+': '+r.value+'">' +
+          '<span class="b-label">'+ (icon ? '<span class="b-icon" aria-hidden="true">'+icon+'</span>' : '') + escapeHtml(r.label)+'</span>' +
+          '<span class="b-track"><span class="b-fill '+cls+'" style="width:'+pct+'%"></span></span>' +
+          '<span class="b-value">'+r.value+'</span>' +
+        '</div>'
+      );
+    }).join('');
+  }
+
+  // ---------- donut chart (SVG) ----------
+  var DONUT_SEQ_STEPS = ['var(--seq-700)','var(--seq-600)','var(--seq-550)','var(--seq-500)','var(--seq-450)','var(--seq-400)','var(--seq-350)'];
+
+  function polarToCartesian(cx, cy, r, angleDeg){
+    var rad = (angleDeg - 90) * Math.PI / 180;
+    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+  }
+
+  function donutSlicePath(cx, cy, rOuter, rInner, startAngle, endAngle){
+    var largeArc = (endAngle - startAngle) <= 180 ? '0' : '1';
+    var outerStart = polarToCartesian(cx, cy, rOuter, startAngle);
+    var outerEnd = polarToCartesian(cx, cy, rOuter, endAngle);
+    var innerStart = polarToCartesian(cx, cy, rInner, endAngle);
+    var innerEnd = polarToCartesian(cx, cy, rInner, startAngle);
+    return [
+      'M', outerStart.x, outerStart.y,
+      'A', rOuter, rOuter, 0, largeArc, 1, outerEnd.x, outerEnd.y,
+      'L', innerStart.x, innerStart.y,
+      'A', rInner, rInner, 0, largeArc, 0, innerEnd.x, innerEnd.y,
+      'Z'
+    ].join(' ');
+  }
+
+  function renderDonutChart(containerId, rows, opts){
+    opts = opts || {};
+    var el = document.getElementById(containerId);
+    var total = rows.reduce(function(s,r){ return s + r.value; }, 0);
+    if(!rows.length || total <= 0){ el.innerHTML = '<div class="empty">Sem dados ainda.</div>'; return; }
+
+    var size = 180, rOuter = 82, rInner = 52, cx = size/2, cy = size/2;
+    var angle = 0;
+    var slicesSvg = '';
+    rows.forEach(function(row, i){
+      var sweep = (row.value / total) * 359.98; // evita arco degenerado quando há só 1 categoria
+      var start = angle;
+      var end = Math.min(angle + sweep, 359.98);
+      var color = DONUT_SEQ_STEPS[Math.min(i, DONUT_SEQ_STEPS.length - 1)];
+      slicesSvg += '<path d="'+donutSlicePath(cx, cy, rOuter, rInner, start, end)+'" fill="'+color+'">' +
+        '<title>'+escapeHtml(row.label)+': '+row.value+'</title></path>';
+      angle = end;
+    });
+
+    var centerLabel =
+      '<text x="'+cx+'" y="'+(cy-3)+'" text-anchor="middle" class="donut-center-value">'+total+'</text>' +
+      '<text x="'+cx+'" y="'+(cy+15)+'" text-anchor="middle" class="donut-center-label">'+escapeHtml(opts.centerLabel || 'total')+'</text>';
+
+    var legendHtml = rows.map(function(row, i){
+      var pct = Math.round((row.value / total) * 100);
+      var color = DONUT_SEQ_STEPS[Math.min(i, DONUT_SEQ_STEPS.length - 1)];
+      return '<div class="donut-legend-row" title="'+escapeHtml(row.label)+': '+row.value+'">' +
+        '<span class="donut-legend-swatch" style="background:'+color+';"></span>' +
+        '<span class="donut-legend-label">'+escapeHtml(row.label)+'</span>' +
+        '<span class="donut-legend-value">'+row.value+'</span>' +
+        '<span class="donut-legend-pct">'+pct+'%</span>' +
+      '</div>';
+    }).join('');
+
+    el.innerHTML =
+      '<svg class="donut-svg" width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'">' + slicesSvg + centerLabel + '</svg>' +
+      '<div class="donut-legend">' + legendHtml + '</div>';
+  }
+
+  function renderTable(tableId, title, rows){
+    var el = document.getElementById(tableId);
+    el.innerHTML =
+      '<thead><tr><th>'+escapeHtml(title)+'</th><th>Candidatos</th></tr></thead>' +
+      '<tbody>' + rows.map(function(r){
+        return '<tr><td>'+escapeHtml(r.label)+'</td><td>'+r.value+'</td></tr>';
+      }).join('') + '</tbody>';
+  }
+
+  function renderDashboard(){
+    var tipoVagaRows = countBy(candidates, function(c){ return c.tipoVaga; });
+    var areasRows = foldTail(
+      countBy(candidates, function(c){ return (c.areas||'').split(',').map(function(s){ return s.trim(); }); }),
+      7
+    );
+    var conclusaoRows = [
+      {label:'APTO', value: candidates.filter(function(c){ return c.avaliacao && c.avaliacao.conclusao==='APTO'; }).length},
+      {label:'Contratado', value: candidates.filter(function(c){ return c.avaliacao && c.avaliacao.conclusao==='APTO' && c.avaliacao.contratado==='Sim'; }).length},
+      {label:'NÃO APTO', value: candidates.filter(function(c){ return c.avaliacao && c.avaliacao.conclusao==='NÃO APTO'; }).length},
+      {label:'Pendente', value: candidates.filter(function(c){ return !c.avaliacao || !c.avaliacao.conclusao; }).length}
+    ];
+
+    renderBarChart('chartTipoVaga', tipoVagaRows);
+    renderDonutChart('chartAreas', areasRows, {centerLabel: 'menções'});
+    renderBarChart('chartConclusao', conclusaoRows, {
+      colorFor: function(label){
+        if(label === 'APTO') return 'good';
+        if(label === 'Contratado') return 'contratado';
+        if(label === 'NÃO APTO') return 'critical';
+        return 'muted';
+      },
+      iconFor: function(label){
+        if(label === 'APTO') return '&#10003;';
+        if(label === 'Contratado') return '&#128188;';
+        if(label === 'NÃO APTO') return '&#10007;';
+        return '&#8212;';
+      }
+    });
+
+    renderTable('tableTipoVaga', 'Tipo de vaga', tipoVagaRows);
+    renderTable('tableConclusao', 'Conclusão', conclusaoRows);
+    renderTable('tableAreas', 'Área de interesse', areasRows);
+  }
+
+  var tableVisible = false;
+  document.getElementById('toggleTableBtn').addEventListener('click', function(){
+    tableVisible = !tableVisible;
+    document.getElementById('dashCharts').style.display = tableVisible ? 'none' : '';
+    document.getElementById('dashTable').style.display = tableVisible ? '' : 'none';
+    this.textContent = tableVisible ? 'Ver gráficos' : 'Ver como tabela';
+  });
+  document.getElementById('dashGerarPdfBtn').addEventListener('click', function(){
+    window.print();
+  });
+
+  // ---------- relatório (filtro por categoria/área, status e data) ----------
+  function candidateStatus(c){
+    if(c.avaliacao && c.avaliacao.conclusao === 'APTO' && c.avaliacao.contratado === 'Sim') return 'CONTRATADO';
+    if(c.avaliacao && c.avaliacao.conclusao === 'APTO') return 'APTO';
+    if(c.avaliacao && c.avaliacao.conclusao === 'NÃO APTO') return 'NÃO APTO';
+    return 'PENDENTE';
+  }
+
+  function formatDateBR(iso){
+    if(!iso) return '—';
+    var d = new Date(iso);
+    if(isNaN(d.getTime())) return '—';
+    return d.toLocaleDateString('pt-BR');
+  }
+
+  function populateAreaFilter(){
+    var sel = document.getElementById('r_area');
+    var current = sel.value;
+    var areas = {};
+    candidates.forEach(function(c){
+      (c.areas||'').split(',').forEach(function(a){
+        a = a.trim();
+        if(a) areas[a] = true;
+      });
+    });
+    var sorted = Object.keys(areas).sort(function(a,b){ return a.localeCompare(b,'pt-BR'); });
+    sel.innerHTML = '<option value="">Todas as áreas</option>' +
+      sorted.map(function(a){ return '<option value="'+escapeHtml(a)+'">'+escapeHtml(a)+'</option>'; }).join('');
+    if(sorted.indexOf(current) > -1) sel.value = current;
+  }
+
+  function populateCidadeFilter(){
+    var sel = document.getElementById('r_cidade');
+    var current = sel.value;
+    var cidades = {};
+    candidates.forEach(function(c){
+      var cid = (c.cidade||'').trim();
+      if(cid) cidades[cid] = true;
+    });
+    var sorted = Object.keys(cidades).sort(function(a,b){ return a.localeCompare(b,'pt-BR'); });
+    sel.innerHTML = '<option value="">Todas as cidades</option>' +
+      sorted.map(function(c){ return '<option value="'+escapeHtml(c)+'">'+escapeHtml(c)+'</option>'; }).join('');
+    if(sorted.indexOf(current) > -1) sel.value = current;
+  }
+
+  function filterCandidates(){
+    var area = document.getElementById('r_area').value;
+    var cidade = document.getElementById('r_cidade').value;
+    var status = document.getElementById('r_status').value;
+    var de = document.getElementById('r_dataDe').value;   // yyyy-mm-dd or ""
+    var ate = document.getElementById('r_dataAte').value;
+    var dataTipo = document.getElementById('r_dataTipo').value; // 'cadastro' ou 'avaliacao'
+
+    return candidates.filter(function(c){
+      if(area){
+        var candAreas = (c.areas||'').split(',').map(function(a){ return a.trim(); });
+        if(candAreas.indexOf(area) === -1) return false;
+      }
+      if(cidade && (c.cidade||'').trim() !== cidade) return false;
+      if(status && candidateStatus(c) !== status) return false;
+      if(de || ate){
+        var refDate = dataTipo === 'avaliacao' ? (c.avaliacao && c.avaliacao.avaliadoEm) : c.criadoEm;
+        var d = refDate ? refDate.slice(0,10) : '';
+        if(!d) return false;
+        if(de && d < de) return false;
+        if(ate && d > ate) return false;
+      }
+      return true;
+    });
+  }
+
+  function renderRelatorio(){
+    var results = filterCandidates();
+    document.getElementById('r_count').textContent =
+      results.length + (results.length === 1 ? ' candidato encontrado' : ' candidatos encontrados');
+
+    var wrap = document.getElementById('r_results');
+    if(!results.length){ wrap.innerHTML = '<div class="empty">Nenhum candidato corresponde aos filtros selecionados.</div>'; return; }
+
+    wrap.innerHTML = '';
+    results.forEach(function(c){
+      var status = candidateStatus(c);
+      var pillCls = status === 'APTO' ? 'apto' : (status === 'CONTRATADO' ? 'contratado' : (status === 'NÃO APTO' ? 'naoapto' : 'pendente'));
+      var row = document.createElement('div');
+      row.className = 'cand-row';
+      row.innerHTML =
+        '<div class="head">' +
+          '<div><div class="name">' + escapeHtml(c.nome) + '</div>' +
+          '<div class="meta">' + escapeHtml(c.areas || '—') + ' · ' + escapeHtml(c.tipoVaga || '—') +
+          (c.cidade ? ' · ' + escapeHtml(c.cidade) : '') +
+          ' · cadastrado em ' + formatDateBR(c.criadoEm) + '</div></div>' +
+          '<span class="pill '+pillCls+'">' + (status === 'PENDENTE' ? 'Pendente' : status) + '</span>' +
+        '</div>' +
+        '<div class="detail" id="rdet_'+c.id+'">' +
+          '<dl>' +
+            '<dt>Telefone</dt><dd style="margin:0;">'+escapeHtml(c.telefone||'—')+'</dd>' +
+            '<dt>E-mail</dt><dd style="margin:0;">'+escapeHtml(c.email||'—')+'</dd>' +
+            '<dt>Cidade</dt><dd style="margin:0;">'+escapeHtml(c.cidade||'—')+'</dd>' +
+            '<dt>Data de avaliação</dt><dd style="margin:0;">'+formatDateBR(c.avaliacao && c.avaliacao.avaliadoEm)+'</dd>' +
+            '<dt>Perfil DISC</dt><dd style="margin:0;">'+escapeHtml((c.avaliacao && c.avaliacao.discPerfil) || '—')+'</dd>' +
+            '<dt>Enviado para</dt><dd style="margin:0;">'+escapeHtml((c.avaliacao && c.avaliacao.enviadoPara) || '—')+'</dd>' +
+            '<dt>Contratado</dt><dd style="margin:0;">'+escapeHtml((c.avaliacao && c.avaliacao.contratado) || 'Ainda não sei')+((c.avaliacao && c.avaliacao.contratado === 'Sim' && c.avaliacao.contratadoEmpresa) ? ' — '+escapeHtml(c.avaliacao.contratadoEmpresa) : '')+'</dd>' +
+          '</dl>' +
+        '</div>';
+      row.querySelector('.head').addEventListener('click', function(){
+        row.querySelector('.detail').classList.toggle('open');
+      });
+      wrap.appendChild(row);
+    });
+  }
+
+  document.getElementById('r_gerar').addEventListener('click', function(){
+    renderRelatorio();
+    var results = filterCandidates();
+    if(!results.length){ toast('Nenhum candidato encontrado com esses filtros.'); return; }
+    document.querySelectorAll('#r_results .detail').forEach(function(d){ d.classList.add('open'); });
+    window.print();
+  });
+  ['r_area','r_cidade','r_status','r_dataDe','r_dataAte','r_dataTipo'].forEach(function(id){
+    document.getElementById(id).addEventListener('change', renderRelatorio);
+  });
+
+  document.getElementById('r_limpar').addEventListener('click', function(){
+    document.getElementById('r_area').value = '';
+    document.getElementById('r_cidade').value = '';
+    document.getElementById('r_status').value = '';
+    document.getElementById('r_dataDe').value = '';
+    document.getElementById('r_dataAte').value = '';
+    document.getElementById('r_dataTipo').value = 'cadastro';
+    renderRelatorio();
+  });
+
+  // ---------- convite para entrevista (WhatsApp / e-mail) ----------
+  function digitsOnly(str){ return (str||'').toString().replace(/\D/g,''); }
+
+  function whatsappNumber(phone){
+    var d = digitsOnly(phone);
+    if(!d) return '';
+    if(d.length <= 11) d = '55' + d; // assume DDD sem código do país (Brasil)
+    return d;
+  }
+
+  function defaultInviteMessage(c){
+    var vaga = (c.areas || '').split(',')[0].trim() || 'a vaga';
+    return 'Olá ' + (c.nomeSocial || c.nome) + '! Tudo bem? Vimos seu cadastro para ' + vaga +
+      ' e gostaríamos de te chamar para uma entrevista. Você tem disponibilidade essa semana? Aguardamos seu retorno!';
+  }
+
+  function inviteBlockHtml(c, prefix){
+    return (
+      '<div class="invite-block">' +
+        '<label>Chamar para entrevista</label>' +
+        '<textarea id="'+prefix+'_msg_'+c.id+'" rows="3">'+escapeHtml(defaultInviteMessage(c))+'</textarea>' +
+        '<div class="row-inline" style="margin-top:8px;">' +
+          '<button type="button" class="btn btn-primary btn-sm" id="'+prefix+'_wa_'+c.id+'">&#128241; Chamar no WhatsApp</button>' +
+          '<button type="button" class="btn btn-ghost btn-sm" id="'+prefix+'_mail_'+c.id+'">&#9993; Chamar por e-mail</button>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function bindInviteBlock(c, container, prefix){
+    var waBtn = container.querySelector('#'+prefix+'_wa_'+c.id);
+    var mailBtn = container.querySelector('#'+prefix+'_mail_'+c.id);
+    if(waBtn){
+      waBtn.addEventListener('click', function(){
+        var msg = container.querySelector('#'+prefix+'_msg_'+c.id).value;
+        var num = whatsappNumber(c.telefone);
+        if(!num){ toast('Telefone do candidato não informado.'); return; }
+        window.open('https://wa.me/'+num+'?text='+encodeURIComponent(msg), '_blank');
+      });
+    }
+    if(mailBtn){
+      mailBtn.addEventListener('click', function(){
+        var msg = container.querySelector('#'+prefix+'_msg_'+c.id).value;
+        if(!c.email){ toast('E-mail do candidato não informado.'); return; }
+        window.location.href = 'mailto:'+encodeURIComponent(c.email)+
+          '?subject='+encodeURIComponent('Convite para entrevista')+
+          '&body='+encodeURIComponent(msg);
+      });
+    }
+  }
+
+  // candidatos ficam cada um só na aba da sua situação: Apto, Contratado ou Não apto
+  var STATUS_CONFIG = {
+    APTO: { searchId: 'aptoSearchInput', wrapId: 'aptoResults' },
+    CONTRATADO: { searchId: 'contratadoSearchInput', wrapId: 'contratadoResults' },
+    'NÃO APTO': { searchId: 'naoaptoSearchInput', wrapId: 'naoaptoResults' }
+  };
+  // linha de candidato reaproveitada pela Avaliação e pelas abas Apto/Contratado/Não apto:
+  // abre o mesmo formulário de avaliação (editar parecer, trocar situação, excluir candidato)
+  function buildAvalRow(c, wrap){
+    var row = document.createElement('div');
+    row.className = 'cand-row';
+    row.innerHTML =
+      '<div class="head">' +
+        '<div><div class="name">' + escapeHtml(c.nome) + '</div>' +
+        '<div class="meta">' + escapeHtml(c.areas || '—') + ' · ' + escapeHtml(c.tipoVaga || '—') +
+        (c.cidade ? ' · ' + escapeHtml(c.cidade) : '') + '</div></div>' +
+        conclusaoPill(c) +
+      '</div>' +
+      '<div class="detail" id="det_'+c.id+'"></div>';
+    row.querySelector('.head').addEventListener('click', function(){
+      var det = row.querySelector('.detail');
+      var isOpen = det.classList.contains('open');
+      wrap.querySelectorAll('.detail.open').forEach(function(d){ d.classList.remove('open'); });
+      if(!isOpen){ det.innerHTML = avalFormHtml(c); det.classList.add('open'); bindAvalForm(c, det); }
+    });
+    wrap.appendChild(row);
+  }
+  function renderStatusList(status){
+    var cfg = STATUS_CONFIG[status];
+    if(!cfg) return;
+    var searchEl = document.getElementById(cfg.searchId);
+    var wrap = document.getElementById(cfg.wrapId);
+    if(!wrap) return;
+    var q = (searchEl ? searchEl.value : '').trim().toLowerCase();
+    var list = candidates.filter(function(c){
+      if(candidateStatus(c) !== status) return false;
+      if(!q) return true;
+      return (c.nome||'').toLowerCase().indexOf(q) > -1 ||
+             (c.areas||'').toLowerCase().indexOf(q) > -1 ||
+             (c.cidade||'').toLowerCase().indexOf(q) > -1;
+    });
+    if(!list.length){ wrap.innerHTML = '<div class="empty">Nenhum candidato nessa situação ainda.</div>'; return; }
+    wrap.innerHTML = '';
+    list.forEach(function(c){ buildAvalRow(c, wrap); });
+  }
+  Object.keys(STATUS_CONFIG).forEach(function(status){
+    var cfg = STATUS_CONFIG[status];
+    var searchEl = document.getElementById(cfg.searchId);
+    if(searchEl) searchEl.addEventListener('input', function(){ renderStatusList(status); });
+  });
+
+  // ---------- export / import (compartilhado entre a aba Buscar e os botões do cabeçalho) ----------
+  function exportAllData(){
+    var copia = JSON.parse(JSON.stringify(candidates));
+    var tarefas = [];
+    copia.forEach(function(c){
+      if(c.curriculoDataUrl && c.curriculoDataUrl.indexOf('arquivo:') === 0){
+        tarefas.push(baixarArquivo(c.curriculoDataUrl).then(function(u){ c.curriculoDataUrl = u; }).catch(function(){}));
+      }
+      if(c.avaliacao && c.avaliacao.parecerDataUrl && c.avaliacao.parecerDataUrl.indexOf('arquivo:') === 0){
+        tarefas.push(baixarArquivo(c.avaliacao.parecerDataUrl).then(function(u){ c.avaliacao.parecerDataUrl = u; }).catch(function(){}));
+      }
+    });
+    if(tarefas.length) toast('Preparando exportação...');
+    Promise.all(tarefas).then(function(){ baixarExportacao(copia); });
+  }
+  function baixarExportacao(lista){
+    var blob = new Blob([JSON.stringify(lista, null, 2)], {type:'application/json'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'candidatos_' + new Date().toISOString().slice(0,10) + '.json';
+    a.click();
+    toast('Dados exportados.');
+  }
+  function importAllDataFromFile(file){
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(evt){
+      try{
+        var data = JSON.parse(evt.target.result);
+        if(Array.isArray(data)){
+          candidates = data;
+          saveState();
+          toast('Dados importados: ' + data.length + ' candidato(s).');
+          renderStats(); renderAvalList(); renderStatusList('APTO'); renderStatusList('CONTRATADO'); renderStatusList('NÃO APTO');
+        } else { toast('Arquivo inválido.'); }
+      } catch(err){ toast('Erro ao ler o arquivo.'); }
+    };
+    reader.readAsText(file);
+  }
+
+  document.getElementById('headerExportBtn').addEventListener('click', exportAllData);
+  document.getElementById('headerImportInput').addEventListener('change', function(e){ importAllDataFromFile(e.target.files[0]); });
+  document.getElementById('headerMensagensBtn').addEventListener('click', function(){ showTab('mensagens'); });
+  document.getElementById('headerUsuariosBtn').addEventListener('click', function(){ showTab('usuarios'); });
+
+  // ---------- usuários / login ----------
+  var users = [
+    {id: cryptoId(), nome:'Administrador', usuario:'admin', senha:'admin', perfil:'Administrador'}
+  ];
+  var messages = [];
+  var currentUser = null;
+  var TAB_ROLES = {
+    inicio: ['Administrador','Membro'],
+    cadastro: ['Administrador','Membro'],
+    avaliacao: ['Administrador','Membro'],
+    apto: ['Administrador','Membro'],
+    contratado: ['Administrador','Membro'],
+    naoapto: ['Administrador','Membro'],
+    dashboard: ['Administrador','Membro'],
+    relatorio: ['Administrador','Membro'],
+    usuarios: ['Administrador']
+  };
+
+  // ---------- aba Início ----------
+  var TITULOS_MODULOS = {
+    cadastro: '&#128279; Link', avaliacao: '&#128274; Avaliação', apto: '&#9989; Apto',
+    contratado: '&#127881; Contratados', naoapto: '&#10060; Não apto',
+    dashboard: '&#128202; Dashboard', relatorio: '&#128196; Relatório', mensagens: '&#128172; Mensagens',
+    usuarios: '&#128100; Usuários'
+  };
+  document.getElementById('backHomeBtn').addEventListener('click', function(){
+    showTab('inicio');
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+  var MODULE_ROLES = {
+    cadastro: ['Administrador','Membro'],
+    avaliacao: ['Administrador','Membro'],
+    apto: ['Administrador','Membro'],
+    contratado: ['Administrador','Membro'],
+    naoapto: ['Administrador','Membro'],
+    dashboard: ['Administrador','Membro'],
+    relatorio: ['Administrador','Membro'],
+    mensagens: ['Administrador','Membro'],
+    usuarios: ['Administrador'],
+    exportar: ['Administrador','Membro'],
+    importar: ['Administrador','Membro']
+  };
+  function setCount(id, n, sufixo){
+    var el = document.getElementById(id);
+    if(!el) return;
+    if(Array.isArray(sufixo)) sufixo = n === 1 ? sufixo[0] : sufixo[1];
+    if(n > 0){ el.textContent = n + (sufixo ? ' ' + sufixo : ''); el.style.display = ''; }
+    else el.style.display = 'none';
+  }
+  function renderInicio(){
+    var role = currentUser ? currentUser.perfil : null;
+    document.querySelectorAll('.module-card').forEach(function(card){
+      var ok = MODULE_ROLES[card.dataset.go] && MODULE_ROLES[card.dataset.go].indexOf(role) > -1;
+      card.style.display = ok ? '' : 'none';
+    });
+    var h = new Date().getHours();
+    var saud = h < 12 ? 'Bom dia' : (h < 18 ? 'Boa tarde' : 'Boa noite');
+    var nome = currentUser && currentUser.nome ? String(currentUser.nome).split(' ')[0] : '';
+    document.getElementById('homeSaudacao').textContent = saud + (nome ? ', ' + nome : '') + '! Escolha o que você quer fazer.';
+    setCount('mcCountApto', candidates.filter(function(c){ return candidateStatus(c) === 'APTO'; }).length, ['apto', 'aptos']);
+    setCount('mcCountContratado', candidates.filter(function(c){ return candidateStatus(c) === 'CONTRATADO'; }).length, ['contratado', 'contratados']);
+    setCount('mcCountNaoApto', candidates.filter(function(c){ return candidateStatus(c) === 'NÃO APTO'; }).length, ['não apto', 'não aptos']);
+    setCount('mcCountAval', candidates.filter(function(c){ return !c.avaliacao || !c.avaliacao.conclusao; }).length, ['pendente', 'pendentes']);
+    setCount('mcCountLinks', convites.filter(function(cv){ return !cv.cancelado && !cv.usado_em; }).length, 'aguardando');
+    if(role === 'Administrador' || role === 'Membro'){
+      api('/api/convites').then(function(r){
+        convites = r.convites || [];
+        setCount('mcCountLinks', convites.filter(function(cv){ return !cv.cancelado && !cv.usado_em; }).length, 'aguardando');
+      }).catch(function(){});
+    }
+  }
+  document.querySelectorAll('.module-card').forEach(function(card){
+    card.addEventListener('click', function(){
+      var go = card.dataset.go;
+      if(go === 'exportar'){ exportAllData(); return; }
+      if(go === 'importar'){ var inp = document.getElementById('headerImportInput'); inp.value = ''; inp.click(); return; }
+      if(go === 'links'){
+        showTab('cadastro');
+        setTimeout(function(){
+          var box = document.getElementById('shareBox');
+          if(box){ box.scrollIntoView({behavior:'smooth', block:'start'}); setTimeout(function(){ document.getElementById('conviteDesc').focus(); }, 450); }
+        }, 80);
+        return;
+      }
+      showTab(go);
+      window.scrollTo({top:0, behavior:'smooth'});
+    });
+  });
+
+  function roleBadgeClass(perfil){
+    return perfil === 'Administrador' ? 'admin' : 'membro';
+  }
+
+  function applyRoleVisibility(){
+    var role = currentUser ? currentUser.perfil : null;
+    // dados da avaliação: liberados para Administrador e Membro (sem código de acesso)
+    unlocked = role === 'Administrador' || role === 'Membro';
+    tabButtons.forEach(function(b){
+      var allowed = TAB_ROLES[b.dataset.tab] && TAB_ROLES[b.dataset.tab].indexOf(role) > -1;
+      b.style.display = allowed ? '' : 'none';
+    });
+    // a aba Usuários é exclusiva do Administrador (Membro não tem acesso).
+    var isAdmin = (role === 'Administrador');
+    var cardDadosEmpresa = document.getElementById('cardDadosEmpresa');
+    if(cardDadosEmpresa) cardDadosEmpresa.style.display = isAdmin ? '' : 'none';
+    var cardLogoSistema = document.getElementById('cardLogoSistema');
+    if(cardLogoSistema) cardLogoSistema.style.display = isAdmin ? '' : 'none';
+    // link de cadastro para compartilhar: Administrador e Membro veem (nunca aparece no link público)
+    var shareBox = document.getElementById('shareBox');
+    if(shareBox) shareBox.style.display = (unlocked && !isPublicCadastro) ? '' : 'none';
+    // botão Mensagens no cabeçalho: aparece em todas as abas enquanto estiver logado
+    var hdrMsg = document.getElementById('headerMensagensBtn');
+    if(hdrMsg) hdrMsg.style.display = (unlocked && !isPublicCadastro) ? '' : 'none';
+  }
+
+  var usuarioEditandoId = null;
+  function renderUsersList(){
+    var wrap = document.getElementById('usersList');
+    if(!users.length){ wrap.innerHTML = '<div class="empty">Nenhum usuário cadastrado.</div>'; return; }
+    wrap.innerHTML = users.map(function(u){
+      var souPrimeiroAdmin = currentUser && String(currentUser.usuario).toLowerCase() === 'admin';
+      var canRemove = users.length > 1 && !(currentUser && currentUser.id === u.id) &&
+        (u.perfil !== 'Administrador' || souPrimeiroAdmin);
+      if(usuarioEditandoId === u.id){
+        return (
+          '<div class="user-row user-row-edit" style="flex-direction:column;align-items:stretch;gap:10px;">' +
+            '<div class="new-user-grid">' +
+              '<div><label>Nome</label><input type="text" id="ue_nome" value="'+escapeHtml(u.nome)+'"></div>' +
+              '<div><label>Nova senha <span class="opt">(deixe em branco para não trocar)</span></label>' +
+                '<div class="password-wrap"><input type="password" id="ue_senha" placeholder="Nova senha" autocomplete="new-password">' +
+                '<button type="button" class="toggle-pass" id="ue_toggle" title="Mostrar/ocultar senha">&#128065;</button></div></div>' +
+              '<div><label>Perfil</label>' +
+                '<select id="ue_perfil"'+(u.perfil === 'Administrador' ? ' disabled title="O perfil Administrador não pode ser alterado"' : '')+'>' +
+                  ['Administrador','Membro'].map(function(p){ return '<option value="'+p+'"'+(p===u.perfil?' selected':'')+'>'+p+'</option>'; }).join('') +
+                '</select></div>' +
+            '</div>' +
+            '<p id="ue_erro" style="color:var(--danger);font-size:12.5px;display:none;"></p>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<button type="button" class="btn btn-primary btn-sm" id="ue_salvar">Salvar alterações</button>' +
+              '<button type="button" class="btn btn-ghost btn-sm" id="ue_cancelar">Cancelar</button>' +
+            '</div>' +
+          '</div>'
+        );
+      }
+      return (
+        '<div class="user-row">' +
+          '<div class="u-info"><span class="u-name">'+escapeHtml(u.nome)+'</span>' +
+          '<span class="u-meta">'+escapeHtml(u.usuario)+'</span></div>' +
+          '<div class="u-actions">' +
+            '<span class="role-badge '+roleBadgeClass(u.perfil)+'">'+escapeHtml(u.perfil)+'</span>' +
+            '<button type="button" class="btn btn-ghost btn-sm" data-edit-user="'+u.id+'">Editar</button>' +
+            (canRemove ? '<button type="button" class="btn btn-ghost btn-sm" data-remove-user="'+u.id+'">Remover</button>' : '') +
+          '</div>' +
+        '</div>'
+      );
+    }).join('');
+
+    wrap.querySelectorAll('[data-edit-user]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        usuarioEditandoId = this.getAttribute('data-edit-user');
+        renderUsersList();
+        var nomeEl = document.getElementById('ue_nome');
+        if(nomeEl){ nomeEl.focus(); nomeEl.select(); }
+        bindPasswordToggle('ue_toggle', 'ue_senha');
+      });
+    });
+    var cancelBtn = wrap.querySelector('#ue_cancelar');
+    if(cancelBtn) cancelBtn.addEventListener('click', function(){ usuarioEditandoId = null; renderUsersList(); });
+    var saveBtn = wrap.querySelector('#ue_salvar');
+    if(saveBtn) saveBtn.addEventListener('click', function(){
+      var alvo = users.filter(function(u){ return u.id === usuarioEditandoId; })[0];
+      if(!alvo) return;
+      var nome = document.getElementById('ue_nome').value.trim();
+      var novaSenha = document.getElementById('ue_senha').value;
+      var perfil = document.getElementById('ue_perfil').value;
+      var erroEl = document.getElementById('ue_erro');
+      if(!nome){ erroEl.textContent = 'O nome não pode ficar em branco.'; erroEl.style.display = ''; return; }
+      if(novaSenha && novaSenha.length < 4){ erroEl.textContent = 'A nova senha precisa ter pelo menos 4 caracteres.'; erroEl.style.display = ''; return; }
+      confirmarAcao({
+        titulo: 'Salvar alterações do usuário',
+        texto: 'Confirmar as alterações do usuário ' + alvo.nome + '?',
+        textoOk: 'Salvar',
+        pedirSenha: true
+      }, function(){
+        alvo.nome = nome;
+        if(alvo.perfil !== 'Administrador') alvo.perfil = perfil;
+        if(novaSenha){ alvo.senha = novaSenha; alvo.precisaTrocarSenha = true; }
+        usuarioEditandoId = null;
+        saveState();
+        renderUsersList();
+        toast('Usuário atualizado.');
+      });
+    });
+
+    wrap.querySelectorAll('[data-remove-user]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var id = this.getAttribute('data-remove-user');
+        var alvo = users.filter(function(u){ return u.id === id; })[0];
+        var souPrimeiroAdmin = currentUser && String(currentUser.usuario).toLowerCase() === 'admin';
+        if(alvo && alvo.perfil === 'Administrador' && !souPrimeiroAdmin){ toast('Só o administrador principal pode remover outro Administrador.'); return; }
+        var avisoAdmin = (alvo && alvo.perfil === 'Administrador') ? ' Ele é um Administrador — essa ação não pode ser desfeita.' : '';
+        confirmarAcao({
+          titulo: 'Remover usuário',
+          texto: 'Remover o usuário ' + (alvo ? alvo.nome : '') + '?' + avisoAdmin + ' Ele deixa de conseguir entrar no sistema.',
+          textoOk: 'Remover',
+          pedirSenha: true
+        }, function(){
+          users = users.filter(function(u){ return u.id !== id; });
+          saveState();
+          renderUsersList();
+          toast('Usuário removido.');
+        });
+      });
+    });
+  }
+
+  document.getElementById('u_add').addEventListener('click', function(){
+    var nome = document.getElementById('u_nome').value.trim();
+    var usuario = document.getElementById('u_usuario').value.trim();
+    var perfil = document.getElementById('u_perfil').value;
+    if(!nome || !usuario){ toast('Preencha nome e usuário.'); return; }
+    if(users.some(function(u){ return u.usuario.toLowerCase() === usuario.toLowerCase(); })){
+      toast('Já existe um usuário com esse usuário/e-mail.'); return;
+    }
+    users.push({id: cryptoId(), nome: nome, usuario: usuario, senha: '1234', perfil: perfil, precisaTrocarSenha: true});
+    document.getElementById('u_nome').value = '';
+    document.getElementById('u_usuario').value = '';
+    document.getElementById('u_perfil').value = 'Membro';
+    saveState();
+    renderUsersList();
+    toast('Usuário adicionado com a senha inicial 1234.');
+  });
+
+  // ---------- troca de senha obrigatória no primeiro acesso ----------
+  function mostrarForcarTrocaSenha(){
+    document.getElementById('appRoot').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('forcarSenhaScreen').style.display = 'flex';
+    ['fs_senhaAtual','fs_senhaNova','fs_senhaConfirmar'].forEach(function(id){ document.getElementById(id).value = ''; });
+    document.getElementById('fsErro').style.display = 'none';
+    setTimeout(function(){ document.getElementById('fs_senhaAtual').focus(); }, 80);
+  }
+  document.getElementById('fsToggleAtual').addEventListener('click', function(){
+    var i = document.getElementById('fs_senhaAtual'); i.type = i.type === 'password' ? 'text' : 'password';
+  });
+  document.getElementById('fsToggleNova').addEventListener('click', function(){
+    var i = document.getElementById('fs_senhaNova'); i.type = i.type === 'password' ? 'text' : 'password';
+  });
+  document.getElementById('fs_salvar').addEventListener('click', function(){
+    var atual = document.getElementById('fs_senhaAtual').value;
+    var nova = document.getElementById('fs_senhaNova').value;
+    var confirmar = document.getElementById('fs_senhaConfirmar').value;
+    var erroEl = document.getElementById('fsErro');
+    erroEl.style.display = 'none';
+    if(!atual || !nova || !confirmar){ erroEl.textContent = 'Preencha os três campos.'; erroEl.style.display = ''; return; }
+    if(nova.length < 4){ erroEl.textContent = 'A nova senha precisa ter pelo menos 4 caracteres.'; erroEl.style.display = ''; return; }
+    if(nova === '1234'){ erroEl.textContent = 'Escolha uma senha diferente da senha inicial.'; erroEl.style.display = ''; return; }
+    if(nova !== confirmar){ erroEl.textContent = 'A confirmação não é igual à nova senha.'; erroEl.style.display = ''; return; }
+    var btn = this; btn.disabled = true; btn.textContent = 'Salvando...';
+    api('/api/trocar-senha', {method:'POST', body:{senhaAtual: atual, novaSenha: nova}}).then(function(){
+      var u = users.filter(function(x){ return x.id === currentUser.id; })[0];
+      if(u){ u.senha = nova; u.precisaTrocarSenha = false; }
+      currentUser.precisaTrocarSenha = false;
+      if(u) ultimoSync['usuario|' + currentUser.id] = JSON.stringify(Object.assign({}, u)); // evita reenviar por cima
+      document.getElementById('forcarSenhaScreen').style.display = 'none';
+      document.getElementById('appRoot').style.display = '';
+      applyRoleVisibility();
+      updateMensagensBadge();
+      showTab('inicio');
+      toast('Senha alterada com sucesso!');
+    }).catch(function(err){
+      erroEl.textContent = err.status === 401 ? 'Senha atual incorreta.' : ('Não foi possível trocar a senha: ' + err.message);
+      erroEl.style.display = '';
+    }).then(function(){
+      btn.disabled = false; btn.textContent = 'Salvar e continuar';
+    });
+  });
+
+  // ---------- mensagens (equipe) ----------
+  function userNomeByUsuario(usuario){
+    var u = users.filter(function(x){ return x.usuario === usuario; })[0];
+    return u ? u.nome : usuario;
+  }
+
+  function formatDateHoraBR(iso){
+    if(!iso) return '—';
+    var d = new Date(iso);
+    if(isNaN(d.getTime())) return '—';
+    return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+  }
+
+  function populateMensagensPara(){
+    var sel = document.getElementById('m_para');
+    if(!sel) return;
+    var current = sel.value;
+    var options = ['<option value="">Toda a equipe</option>'];
+    users.forEach(function(u){
+      if(currentUser && u.usuario === currentUser.usuario) return; // não faz sentido mandar pra si mesmo
+      options.push('<option value="'+escapeHtml(u.usuario)+'">'+escapeHtml(u.nome || u.usuario)+'</option>');
+    });
+    sel.innerHTML = options.join('');
+    var stillValid = Array.prototype.some.call(sel.options, function(o){ return o.value === current; });
+    if(stillValid) sel.value = current;
+  }
+
+  // mensagem é visível pra quem mandou, pra quem é o destinatário direto, ou pra todo mundo (destinatário vazio = toda a equipe)
+  function visibleMessagesForCurrentUser(){
+    if(!currentUser) return [];
+    return messages.filter(function(m){
+      return !m.para || m.para === currentUser.usuario || m.de === currentUser.usuario;
+    });
+  }
+
+  function mensagemNaoLidaParaAtual(m){
+    return !m.lida && currentUser && m.de !== currentUser.usuario && (!m.para || m.para === currentUser.usuario);
+  }
+
+  function renderMensagens(){
+    populateMensagensPara();
+    var list = visibleMessagesForCurrentUser().slice().sort(function(a,b){ return new Date(b.criadoEm) - new Date(a.criadoEm); });
+    var wrap = document.getElementById('m_list');
+    var countEl = document.getElementById('m_count');
+    if(countEl) countEl.textContent = list.length + (list.length === 1 ? ' mensagem' : ' mensagens');
+    if(!wrap) return;
+    if(!list.length){ wrap.innerHTML = '<div class="empty">Nenhuma mensagem ainda.</div>'; return; }
+    wrap.innerHTML = list.map(function(m){
+      var destinatarioLabel = m.para ? userNomeByUsuario(m.para) : 'Toda a equipe';
+      var unreadCls = mensagemNaoLidaParaAtual(m) ? ' unread' : '';
+      return (
+        '<div class="msg-item'+unreadCls+'">' +
+          '<div class="msg-head"><span><strong>'+escapeHtml(m.deNome||m.de)+'</strong> &rarr; <span class="msg-to-pill">'+escapeHtml(destinatarioLabel)+'</span></span>' +
+          '<span>'+formatDateHoraBR(m.criadoEm)+'</span></div>' +
+          '<div class="msg-body">'+escapeHtml(m.texto)+'</div>' +
+        '</div>'
+      );
+    }).join('');
+  }
+
+  function markMensagensRead(){
+    var changed = false;
+    messages.forEach(function(m){
+      if(mensagemNaoLidaParaAtual(m)){ m.lida = true; changed = true; }
+    });
+    if(changed){ saveState(); updateMensagensBadge(); }
+  }
+
+  function updateMensagensBadge(){
+    var dot = document.getElementById('mensagensUnreadDot');
+    if(!dot) return;
+    var hasUnread = !!currentUser && messages.some(mensagemNaoLidaParaAtual);
+    dot.style.display = hasUnread ? 'inline-block' : 'none';
+    setCount('mcCountMsg', currentUser ? messages.filter(mensagemNaoLidaParaAtual).length : 0, ['nova', 'novas']);
+  }
+
+  document.getElementById('m_enviar').addEventListener('click', function(){
+    var textoEl = document.getElementById('m_texto');
+    var texto = textoEl.value.trim();
+    if(!texto){ toast('Escreva uma mensagem antes de enviar.'); return; }
+    var para = document.getElementById('m_para').value;
+    messages.unshift({
+      id: cryptoId(),
+      de: currentUser ? currentUser.usuario : '',
+      deNome: currentUser ? currentUser.nome : '',
+      para: para,
+      texto: texto,
+      criadoEm: new Date().toISOString(),
+      lida: false
+    });
+    textoEl.value = '';
+    saveState();
+    renderMensagens();
+    updateMensagensBadge();
+    toast(para ? 'Mensagem enviada para ' + userNomeByUsuario(para) + '.' : 'Mensagem enviada para toda a equipe.');
+  });
+
+  function bindPasswordToggle(btnId, inputId){
+    var btn = document.getElementById(btnId);
+    var input = document.getElementById(inputId);
+    btn.addEventListener('click', function(){
+      input.type = (input.type === 'password') ? 'text' : 'password';
+    });
+  }
+  bindPasswordToggle('toggleLoginPass', 'loginPass');
+  bindEnterChain(
+    ['u_nome','u_usuario'],
+    function(){ document.getElementById('u_add').click(); }
+  );
+
+  function doLogin(){
+    var usuario = document.getElementById('loginUser').value.trim();
+    var senha = document.getElementById('loginPass').value;
+    var errEl = document.getElementById('loginError');
+    var btn = document.getElementById('loginBtn');
+    if(!usuario || !senha){ errEl.style.display = 'block'; return; }
+    btn.disabled = true;
+    btn.textContent = 'Entrando...';
+    api('/api/login', {method:'POST', body:{usuario: usuario, senha: senha}}).then(function(r){
+      authToken = r.token;
+      try{ window.sessionStorage.setItem(TOKEN_KEY, r.token); }catch(e){}
+      errEl.style.display = 'none';
+      return entrarComSessao(r.usuario);
+    }).catch(function(err){
+      if(err.status === 401){ errEl.style.display = 'block'; }
+      else { toast('Não foi possível conectar ao banco de dados. Verifique a internet.'); }
+    }).then(function(){
+      btn.disabled = false;
+      btn.textContent = 'Entrar';
+    });
+  }
+
+  function entrarComSessao(info){
+    return carregarDoServidor().then(function(){
+      var match = users.filter(function(u){ return u.id === info.id; })[0] || info;
+      mostrarApp(match);
+      oferecerMigracao();
+    });
+  }
+
+  function mostrarApp(match){
+    currentUser = match;
+    var badge = document.getElementById('currentUserBadge');
+    badge.textContent = match.nome + ' · ' + match.perfil;
+    badge.style.display = 'inline-flex';
+    if(match.precisaTrocarSenha){
+      mostrarForcarTrocaSenha();
+      return;
+    }
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('forcarSenhaScreen').style.display = 'none';
+    document.getElementById('appRoot').style.display = '';
+    applyRoleVisibility();
+    updateMensagensBadge();
+    showTab('inicio');
+  }
+  function doLogout(semAvisarServidor){
+    if(syncTimer){ clearTimeout(syncTimer); runSync(); }
+    if(!semAvisarServidor && authToken){ api('/api/logout', {method:'POST'}).catch(function(){}); }
+    authToken = null;
+    try{ window.sessionStorage.removeItem(TOKEN_KEY); }catch(e){}
+    servidorPronto = false;
+    ultimoSync = {};
+    candidates = []; messages = [];
+    setSyncStatus('off');
+    currentUser = null;
+    document.getElementById('appRoot').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('loginUser').value = '';
+    document.getElementById('loginPass').value = '';
+    document.getElementById('loginPass').type = 'password';
+    document.getElementById('loginError').style.display = 'none';
+    document.getElementById('currentUserBadge').style.display = 'none';
+    document.getElementById('headerMensagensBtn').style.display = 'none';
+    document.getElementById('headerUsuariosBtn').style.display = 'none';
+    updateMensagensBadge();
+  }
+  document.getElementById('loginBtn').addEventListener('click', doLogin);
+  document.getElementById('logoutBtn').addEventListener('click', function(){ doLogout(); });
+  bindEnterChain(['loginUser','loginPass'], doLogin);
+
+  // ---------- instalar como aplicativo (celular e PC) ----------
+  var deferredInstallPrompt = null;
+  function mostrarBotoesInstalar(mostrar){
+    var b1 = document.getElementById('installAppBtn');
+    var b2 = document.getElementById('installAppBtnLogin');
+    if(b1) b1.style.display = mostrar ? '' : 'none';
+    if(b2) b2.style.display = mostrar ? '' : 'none';
+  }
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    if(!isPublicCadastro) mostrarBotoesInstalar(true);
+  });
+  function tentarInstalarApp(){
+    if(!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.then(function(){ deferredInstallPrompt = null; mostrarBotoesInstalar(false); });
+  }
+  var installBtnHeader = document.getElementById('installAppBtn');
+  if(installBtnHeader) installBtnHeader.addEventListener('click', tentarInstalarApp);
+  var installBtnLogin = document.getElementById('installAppBtnLogin');
+  if(installBtnLogin) installBtnLogin.addEventListener('click', tentarInstalarApp);
+  window.addEventListener('appinstalled', function(){ deferredInstallPrompt = null; mostrarBotoesInstalar(false); });
+
+  // service worker: só existe para o navegador liberar a opção de instalar (não funciona abrindo o arquivo direto do PC, só no site publicado)
+  if('serviceWorker' in navigator && location.protocol !== 'file:' && !isPublicCadastro){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('sw.js').catch(function(){});
+    });
+  }
+
+  // ao fechar/recarregar a aba: envia o que faltou e avisa se ainda há algo sendo salvo
+  window.addEventListener('beforeunload', function(e){
+    if(!servidorPronto) return;
+    if(syncTimer){ clearTimeout(syncTimer); runSync({keepalive:true}); }
+    if(sincronizando){ e.preventDefault(); e.returnValue = ''; }
+  });
+
+  // ---------- título/logo públicos e sessão salva ----------
+  carregarConfigPublica();
+  if(!isPublicCadastro && authToken){
+    // recarregou a página com a aba ainda aberta: continua logado sem mostrar a tela de login
+    document.getElementById('loginScreen').style.visibility = 'hidden';
+    api('/api/sessao').then(function(r){ return entrarComSessao(r.usuario); })
+      .catch(function(err){
+        authToken = null;
+        try{ window.sessionStorage.removeItem(TOKEN_KEY); }catch(e){}
+        if(err.status !== 401) toast('Não foi possível conectar ao banco de dados.');
+      }).then(function(){
+        document.getElementById('loginScreen').style.visibility = '';
+      });
+  }
+
+  // colar/abrir um link de cadastro na mesma aba: recarrega para abrir o formulário certo
+  window.addEventListener('hashchange', function(){
+    var agoraPublico = window.location.hash.indexOf('#cadastro') === 0;
+    if(agoraPublico || isPublicCadastro) window.location.reload();
+  });
+
+  // ---------- initial route ----------
+  if(isPublicCadastro){
+    document.body.classList.add('modo-publico');
+    document.getElementById('formCadastro').style.visibility = 'hidden';
+    if(!conviteToken){ linkIndisponivel('inexistente'); }
+    else {
+      api('/api/publico/convite/' + conviteToken).then(function(r){
+        if(r.valido) document.getElementById('formCadastro').style.visibility = '';
+        else linkIndisponivel(r.motivo);
+      }).catch(function(){
+        mostrarMensagemPublica('&#128268;', 'Sem conexão', 'Não foi possível abrir o cadastro agora. Verifique a internet e tente de novo.');
+      });
+    }
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appRoot').style.display = '';
+    document.getElementById('tabs').style.display = 'none';
+    Object.keys(panels).forEach(function(k){ panels[k].style.display = (k==='cadastro') ? '' : 'none'; });
+    // link público de cadastro: esconde ações administrativas do cabeçalho e a logomarca da empresa
+    document.getElementById('headerMensagensBtn').style.display = 'none';
+    document.getElementById('headerExportBtn').style.display = 'none';
+    document.getElementById('headerImportLabel').style.display = 'none';
+    document.getElementById('logoutBtn').style.display = 'none';
+    document.getElementById('currentUserBadge').style.display = 'none';
+    document.getElementById('logoDisplay').style.display = 'none';
+  }
+  // caso contrário, a tela de login (visível por padrão) aguarda o usuário entrar — ver doLogin().
+})();
+</script>
+</body>
+</html>
