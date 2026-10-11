@@ -286,10 +286,18 @@ async function configPublica(env) {
   let systemLogo = '';
   const ref = String(cfg.systemLogo || '');
   if (ref.startsWith('arquivo:')) systemLogo = (await lerArquivo(env, ref.slice(8))) || '';
-  return json({
+  // cacheia por alguns minutos: evita buscar a logo (pesada) do banco a cada vez que a tela de login abre
+  return new Response(JSON.stringify({
     appTitle: cfg.appTitle || '',
     empresa: (cfg.company && cfg.company.nome) || '',
     systemLogo
+  }), {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'public, max-age=300',
+      ...CORS
+    }
   });
 }
 
