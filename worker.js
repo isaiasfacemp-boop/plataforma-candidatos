@@ -334,7 +334,15 @@ export default {
       if (m && request.method === 'GET') {
         const dataUrl = await lerArquivo(env, m[1]);
         if (!dataUrl) return erro('Arquivo não encontrado.', 404);
-        return json({ dataUrl });
+        // arquivo é imutável (cada upload gera um id novo), então pode guardar em cache por bastante tempo
+        return new Response(JSON.stringify({ dataUrl }), {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Cache-Control': 'public, max-age=31536000, immutable',
+            ...CORS
+          }
+        });
       }
 
       return erro('Rota não encontrada.', 404);
