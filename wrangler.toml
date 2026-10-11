@@ -4,5 +4,5 @@ compatibility_date = "2026-10-01"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "plataforma_candidatos"
-database_id = "a4ac24c7-0ba8-491d-918f-ef13a85cc587"
+database_name = "plataforma_candidatos_db"
+database_id = "2ebb7fd6-3c52-4474-8398-bfdd559a1a28"
